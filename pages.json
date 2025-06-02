@@ -26,6 +26,20 @@
 			{
 				"navigationBarTitleText" : "合同详情"
 			}
+		},
+		{
+			"path" : "pages/SearchCompanyPage",
+			"style" : 
+			{
+				"navigationBarTitleText" : "资料检索"
+			}
+		},
+		{
+			"path" : "pages/verify-code",
+			"style" : 
+			{
+				"navigationBarTitleText" : "用户校验"
+			}
 		}
 	],
 	"globalStyle": {
