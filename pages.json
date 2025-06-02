@@ -1,0 +1,38 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index",
+			"style": {
+				"navigationBarTitleText": "广东济群药业有限公司"
+			}
+		},
+		{
+			"path" : "pages/TestScroll",
+			"style" : 
+			{
+				"navigationBarTitleText" : "测试滚动"
+			}
+		},
+		{
+			"path" : "pages/contractQuery",
+			"style" : 
+			{
+				"navigationBarTitleText" : "合同查询"
+			}
+		},
+		{
+			"path" : "pages/contractDateail",
+			"style" : 
+			{
+				"navigationBarTitleText" : "合同详情"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {}
+}
