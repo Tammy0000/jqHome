@@ -60,12 +60,20 @@
       </view>
     </view>
 
-    <!-- 查看附件按钮 -->
-    <view class="attachment-btn" @click="showAttachment = true">
-      <text>查看合同附件</text>
-      <image src="/static/icon-preview.png" mode="aspectFit" class="preview-icon"></image>
+    <!-- 底部按钮区 -->
+    <view class="footer-btns">
+      <!-- 审核订单按钮 -->
+      <view class="audit-btn" @click="handleAudit" v-if="isShowApproval">
+        <text>审核订单</text>
+      </view>
+    
+      <!-- 查看附件按钮 -->
+      <view class="attachment-btn" @click="showAttachment = true">
+        <text>查看合同附件</text>
+        <image src="/static/icon-preview.png" mode="aspectFit" class="preview-icon"></image>
+      </view>
     </view>
-
+	
     <!-- 附件图片蒙版 -->
     <view class="attachment-mask" v-if="showAttachment" @click="showAttachment = false">
       <view class="attachment-content" @click.stop>
@@ -77,10 +85,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {onLoad} from '@dcloudio/uni-app'
-import requestFast from '../utils/requestFast'
-import { API_BASE_URL_STATIC } from '../utils/config'
+import requestFast from '@/utils/requestFast.js'
+import { API_BASE_URL_STATIC } from '@/utils/config'
+import { checkLogin } from '../../utils/auth'
 
 const partyAName = ref(null)
 const partyAAddress = ref(null)
@@ -99,10 +108,17 @@ const partyBAccount = ref(null)
 const partyBPhone = ref(null)
 const partyBRepresentative = ref(null)
 const partyBContractDate = ref(null)
+const isKeyProject = ref(false)
+const isShowApproval = ref(false)
+const isShowType = ref(false)
+const isShowStatus = ref(false)
+const approvalType = ref('')
+const approvalStatus = ref([])
 
 onLoad(async(opt) => {
-	const fm = opt.fromNumber
-	await detail(fm)
+	fm.value = opt.fromNumber
+	await detail(fm.value)
+	await findApprovalStatusByUserId(fm.value)
 })
 
 const contractSummary1 = [
@@ -111,8 +127,9 @@ const contractSummary1 = [
   { label: '终端政策', value: '送展示柜' },
   { label: '业务奖励', value: '季度返现' },
   { label: '购进单位', value: '广东医药有限公司' },
-  { label: '返现方式', value: '转账' },
+  { label: '返利单位', value: '转账' },
   { label: '承诺支付日期', value: '2025-06-01' },
+  { label: '承诺支付截止日期', value: '2025-06-01' },
   { label: '政策执行方式', value: '先执行后返现' },
   { label: '政策类型', value: '常规促销' },
   { label: '活动起始时间', value: '2025-06-01' },
@@ -123,6 +140,19 @@ const contractSummary1 = [
 const contractSummary = ref([])
 const orders = ref([])
 const picURL = ref(null)
+const fm = ref(null)
+
+const findApprovalStatusByUserId = async(fromNumber) => {
+	const res = await requestFast.post('/public/store/view/mod/findApprovalStatusByUserId', {fm: fromNumber})
+	if (res.code === 200) {
+		var _res = res.data
+		isShowApproval.value = _res.isShowApproval
+		isShowType.value = _res.isShowType
+		isShowStatus.value = _res.isShowStatus
+		approvalType.value = _res.approvalType
+		approvalStatus.value = _res.approvalStatus
+	}
+}
 
 const detail = async(fromNumber) => {
 	const res = await requestFast.post('/public/store/view/mod/contractOrderDetail', {keyword: fromNumber})
@@ -148,14 +178,17 @@ const detail = async(fromNumber) => {
 	partyBPhone.value = res.partyBPhone
 	partyBRepresentative.value = res.partyBRepresentative
 	partyBContractDate.value = res.partyBContractDate
+	auditStatus.value = res.auditStatus
+	isKeyProject.value = res.isKeyProject
 	
 	contractSummary.value.push({ label: '库存数量', value: res.inventoryQuantity })
 	contractSummary.value.push({ label: '购进政策', value: res.purchasePolicy})
 	contractSummary.value.push({ label: '终端政策', value: res.terminalPolicy })
 	contractSummary.value.push({ label: '业务奖励', value: res.businessReward},)
 	contractSummary.value.push({ label: '购进单位', value: res.purchaseUnit })
-	contractSummary.value.push({ label: '返现方式', value: res.rebateMethod })
+	contractSummary.value.push({ label: '返利单位', value: res.rebateMethod })
 	contractSummary.value.push({ label: '承诺支付日期', value: res.commitmentPaymentDate })
+	contractSummary.value.push({ label: '承诺支付截止日期', value: res.commitmentPaymentDateEnd })
 	contractSummary.value.push({ label: '政策执行方式', value: res.policyExecutionMethod })
 	contractSummary.value.push({ label: '政策类型', value: res.policyType })
 	contractSummary.value.push({ label: '活动起始时间', value: res.activityStartDate })
@@ -177,49 +210,106 @@ const isMoney = (value) => {
   return /¥|元/.test(value);
 }
 
+// 审核状态
+const auditStatus = ref(null);
 
+const canAudit = computed(() => auditStatus.value === '未审核');
+const canCancelAudit = computed(() => auditStatus.value === '已审核');
+const canVoid = computed(() => auditStatus.value !== '已作废' && auditStatus.value !== '未审核');
 
-const orders1 = [
-  {
-    drugId: 'D001',
-    name: '感冒灵颗粒',
-    manufacturer: '白云山制药厂',
-    spec: '10袋/盒',
-    unit: '盒',
-    quantity: 100,
-    difference: '无',
-    remark: '首批发货'
-  },
-  {
-    drugId: 'D002',
-    name: '维C银翘片',
-    manufacturer: '三九药业',
-    spec: '12片/板',
-    unit: '盒',
-    quantity: 200,
-    difference: '5元',
-    remark: '促销期'
+const handleAudit = async() => {
+  const itemList = [];
+  for (var i = 0; i < approvalStatus.value.length; i++) {
+	var title = approvalStatus.value[i]
+	if (title === '未审核') {
+		itemList.push('弃审')
+		continue
+	}
+	itemList.push(title.substring(1,3))
   }
-]
+  if (isShowType.value) {
+	  itemList.push(approvalType.value === '重点合同' ? '标记为重点合同' : '标记为普通合同')
+  }
 
-const partyA = {
-  company: '广东百胜医药有限公司',
-  account: '6222 8888 8888 8888',
-  bank: '建设银行广州支行',
-  phone: '020-12345678',
-  representative: '张三'
-}
+  if (itemList.length === 0) {
+    uni.showToast({
+      title: '当前状态不可操作',
+      icon: 'none'
+    });
+    return;
+  }
 
-const partyB = {
-  company: '华南大药房集团',
-  account: '6222 0000 0000 0000',
-  bank: '工商银行广州支行',
-  phone: '020-87654321',
-  representative: '李四'
-}
+  uni.showActionSheet({
+    itemList,
+    success: (res) => {
+      const action = itemList[res.tapIndex];
+      if (action === '审核') confirmAudit('已审核');
+      else if (action === '弃审') confirmAudit('未审核');
+      else if (action === '作废') confirmAudit('已作废');
+      else if (action === '标记为普通合同') confirmAudit('普通合同');
+      else if (action === '标记为重点合同') confirmAudit('重点合同');
+    },
+    fail: () => {}
+  });
+};
+
+const confirmAudit = (newStatus) => {
+	var contents = ''
+	if (newStatus === '普通合同') {
+		contents = '转普通合同'
+	} else if (newStatus === '重点合同') {
+		contents = '转重点合同'
+	} else {
+		contents = newStatus
+	}
+  uni.showModal({
+    title: `确认${newStatus}`,
+    content: `您确定要将订单标记为【${newStatus}】吗？`,
+    success: async (res) => {
+      if (res.confirm) {
+        auditStatus.value = newStatus;
+		const res = await requestFast.post('/public/store/view/mod/editAuditStatus', {fm: fm.value, auditStatus: newStatus})
+		console.log(res)
+		if (res.code === 200) {
+			await detail(fm.value)
+		}
+        uni.showToast({
+          title: res.code === 200 ? `${contents}成功` : `${contents}失败`,
+          icon: res.code === 200 ? 'success' : 'fail'
+        });
+      }
+    }
+  });
+};
 </script>
 
 <style scoped>
+/* 底部按钮容器 */
+.footer-btns {
+  position: fixed;
+  bottom: 40rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 24rpx; /* 按钮之间间距 */
+  z-index: 99;
+}
+
+/* 审核按钮 */
+.audit-btn {
+  background-color: #34c38f; /* 绿色，偏柔和 */
+  color: #ffffff;
+  padding: 16rpx 32rpx;
+  border-radius: 24rpx; /* 圆角但不过度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  box-shadow: 0 2rpx 8rpx rgba(52, 195, 143, 0.3);
+  min-width: 180rpx; /* 最小宽度，保持按钮均匀 */
+}
+
 .container {
   padding: 32rpx;
   background-color: #f5f7fa;
@@ -332,27 +422,24 @@ const partyB = {
   box-sizing: border-box;
 }
 
-/* 附件查看按钮 */
+/* 查看附件按钮 */
 .attachment-btn {
-  position: fixed;
-  bottom: 40rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #007aff;
-  color: white;
-  padding: 20rpx 40rpx;
-  border-radius: 50rpx;
+  background-color: #4e8ef7; /* 蓝色，柔和 */
+  color: #ffffff;
+  padding: 16rpx 32rpx;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba(0, 122, 255, 0.3);
-  z-index: 99;
+  font-size: 28rpx;
+  box-shadow: 0 2rpx 8rpx rgba(78, 142, 247, 0.3);
+  min-width: 180rpx;
 }
 
 .preview-icon {
-  width: 36rpx;
-  height: 36rpx;
-  margin-left: 10rpx;
+  width: 28rpx;
+  height: 28rpx;
+  margin-left: 8rpx;
 }
 
 /* 附件蒙版 */

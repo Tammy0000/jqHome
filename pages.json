@@ -1,9 +1,16 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index",
+			"path" : "pages/index",
+			"style" : 
+			{
+				"navigationBarTitleText" : "广东济群药业有限公司"
+			}
+		},
+		{
+			"path": "pages/purchDept/index",
 			"style": {
-				"navigationBarTitleText": "广东济群药业有限公司"
+				"navigationBarTitleText": "采购合同订单"
 			}
 		},
 		{
@@ -14,31 +21,52 @@
 			}
 		},
 		{
-			"path" : "pages/contractQuery",
+			"path" : "pages/purchDept/contractQuery",
 			"style" : 
 			{
 				"navigationBarTitleText" : "合同查询"
 			}
 		},
 		{
-			"path" : "pages/contractDateail",
+			"path" : "pages/purchDept/contractDateail",
 			"style" : 
 			{
 				"navigationBarTitleText" : "合同详情"
 			}
 		},
 		{
-			"path" : "pages/SearchCompanyPage",
+			"path" : "pages/purchDept/SearchCompanyPage",
 			"style" : 
 			{
 				"navigationBarTitleText" : "资料检索"
 			}
 		},
 		{
-			"path" : "pages/verify-code",
+			"path" : "pages/Dept/index",
 			"style" : 
 			{
-				"navigationBarTitleText" : "用户校验"
+				"navigationBarTitleText" : "集团管理"
+			}
+		},
+		{
+			"path" : "pages/Dept/deptCenter",
+			"style" : 
+			{
+				"navigationBarTitleText" : "部门工作台"
+			}
+		},
+		{
+			"path" : "pages/login",
+			"style" : 
+			{
+				"navigationBarTitleText" : "登录"
+			}
+		},
+		{
+			"path" : "pages/Person/index",
+			"style" : 
+			{
+				"navigationBarTitleText" : "个人中心"
 			}
 		}
 	],

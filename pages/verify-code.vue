@@ -16,29 +16,57 @@
 
 <script setup>
 import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onShow } from '@dcloudio/uni-app'
+import requestFast from '../utils/requestFast'
 
 const code = ref('')
 const correctCode = '123456' // 这里可替换为从后端返回的验证码
 
-const verifyCode = () => {
-  if (code.value.trim() === correctCode) {
-    uni.showToast({
-      title: '验证成功',
-      icon: 'success'
-    })
-    setTimeout(() => {
-      uni.navigateTo({
-        url: '/pages/next-page/next-page' // 替换为你跳转的页面路径
-      })
-    }, 1000)
-  } else {
-    uni.showToast({
-      title: '验证码错误',
-      icon: 'none'
-    })
+onShow(async() => {
+	// const userid = uni.getStorageSync('userId')
+	// if (userid) {
+	// 	const res = await getCodeRes(userid)
+	// 	if (res) {
+	// 		uni.reLaunch({
+	// 			url:'/pages/index'
+	// 		})
+	// 	}
+	// }
+})
+
+
+const verifyCode = async () => {
+  if (code === '') {
+	  uni.showToast({
+	  	title:'请输入工号!'
+	  })
   }
+  const res = await getCodeRes(code.value)
+  if (res) {
+	  await uni.showToast({
+	  	title:'登录成功!',
+		icon:'success',
+	  })
+	  await uni.reLaunch({
+	  	url:'/pages/index'
+	  })
+	  return
+  }
+  await uni.showToast({
+  	title:'工号不正确，请输入正确的采购员工号',
+	icon:'none'
+  })
 }
+
+const getCodeRes = async(userId) => {
+	const res = await requestFast.post('/public/store/view/mod/verifyCode', {userId: userId})
+	if (res.code === 200) {
+		uni.setStorageSync('userId', userId)
+		return true
+	}
+	return false
+}
+
 </script>
 
 <style scoped>
