@@ -29,7 +29,7 @@
         </view>
       </view>
     </view>
-
+	
     <!-- 合同概要 -->
     <view class="section">
       <view class="section-title">合同概要</view>
@@ -41,6 +41,7 @@
             'highlight-date': isDate(item.value),
             'highlight-money': isMoney(item.value)
           }">{{ item.value }}</text>
+		  <button v-if="item.label === '合同编号'" size="mini" @click="cliCopy">复制</button>
         </view>
       </view>
     </view>
@@ -135,12 +136,25 @@ const contractSummary1 = [
   { label: '活动起始时间', value: '2025-06-01' },
   { label: '活动结束时间', value: '2025-08-31' },
   { label: '签约金额', value: '¥1,200,000' },
+  { label: '合同编号', value: 'jq' },
 ]
 
 const contractSummary = ref([])
 const orders = ref([])
 const picURL = ref(null)
 const fm = ref(null)
+
+const cliCopy = () => {
+	uni.setClipboardData({
+		data:fm.value,
+		success() {
+			uni.showToast({
+				icon:'none',
+				title:'复制成功'
+			})
+		}
+	})
+}
 
 const findApprovalStatusByUserId = async(fromNumber) => {
 	const res = await requestFast.post('/public/store/view/mod/findApprovalStatusByUserId', {fm: fromNumber})
@@ -194,6 +208,7 @@ const detail = async(fromNumber) => {
 	contractSummary.value.push({ label: '活动起始时间', value: res.activityStartDate })
 	contractSummary.value.push({ label: '活动结束时间', value: res.activityEndDate })
 	contractSummary.value.push({ label: '签约金额', value: res.totalPurchaseAmount })
+	contractSummary.value.push({ label: '合同编号', value: fm.value })
 }
 
 const showAttachment = ref(false)

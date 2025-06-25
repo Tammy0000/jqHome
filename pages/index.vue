@@ -119,7 +119,7 @@ const userMenu = async() => {
 			var index = res.tapIndex
 			if (index === 0) {
 				uni.navigateTo({
-					url:'/pages/verify-code'
+					url:'/pages/Person/index'
 				})
 			} else if (index === 1) {
 				logout()
@@ -178,11 +178,11 @@ const initData = () => {
   // 初始化快捷入口
   quickActions.value = [
     { name: '日报', icon: 'compose', color: '#FF9800', path: '/pages/daily-report/index' },
-    { name: '审批', icon: 'checkbox-filled', color: '#4CAF50', path: '/pages/approval/index' },
+    { name: '合同审批', icon: 'checkbox-filled', color: '#4CAF50', path: '/pages/purchDept/contractQuery' },
     { name: '用户登录', icon: 'person-filled', color: '#2196F3', path: '/pages/login' },
     { name: '通知', icon: 'notification-filled', color: '#9C27B0', path: '/pages/notifications/index' },
     { name: '库存', icon: 'shop-filled', color: '#F44336', path: '/pages/inventory/index' },
-    { name: '订单', icon: 'cart-filled', color: '#673AB7', path: '/pages/orders/index' }
+    { name: '订单', icon: 'cart-filled', color: '#673AB7', path: '/pages/inventory/index' }
   ]
   
   // 初始化主要业务模块

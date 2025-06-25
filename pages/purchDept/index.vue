@@ -146,12 +146,12 @@
 
       <view class="product-actions">
         <button class="action-btn" size="mini" @click="changelistadd">新增</button>
-        <button class="action-btn" size="mini" @click="changelistsub">删除</button>
+        <button class="action-btn" size="mini" @click="changelistsub" style="margin-left: 15rpx;">删除</button>
       </view>
 
       <view class="total-amount">
         <view class="amount-input">
-          <text class="label section-title">合计人民币 （小写）：</text>
+          <text class="label section-title-none">合计人民币 （小写）：</text>
           <uni-easyinput type="number" placeholder="请输入金额" @input="changeCh" v-model="totalPurchaseAmount" :clearable="false"></uni-easyinput>
         </view>
         <view class="amount-chinese">
@@ -188,7 +188,7 @@
 
     <view class="section policy-section">
       <text class="section-title">7. 返利单位：</text>
-	  <uni-easyinput type="textarea" placeholder="请输入返利单位" v-model="showData1other" :clearable="false"></uni-easyinput>
+	  <text class="amount-chinese">返利单位：{{partyAName}}</text>
     </view>
 
     <view class="section policy-section">
@@ -564,9 +564,8 @@
 			return
 		}
 		
-		if (totalPurchaseAmount.value == null || totalPurchaseAmount.value == 0) {
-			showToast({'title': '金额不能为0或者留空!'})
-			return
+		if (totalPurchaseAmount.value == null) {
+			totalPurchaseAmount.value == 0
 		}
 		
 		if (purchasePolicy.value == null || purchasePolicy.value == '') {

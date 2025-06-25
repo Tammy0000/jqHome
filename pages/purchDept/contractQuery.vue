@@ -3,7 +3,7 @@
     <view class="container">
       <view class="header">
         <text class="title">合同查询</text>
-        <view class="context-search" v-if="level !== 1">
+        <view class="context-search" v-if="level !== 1 || isPrint">
           <view>
             <uni-search-bar
               class="uni-mt-10"
@@ -52,6 +52,9 @@
 				<text class="audit-status" :class="getAuditStatusClass(contract.auditStatus)" style="margin-left: 25rpx;">
 				  {{ contract.auditStatus }}
 				</text>
+				<text class="audit-status" :class="getAuditStatusClass('下载')" style="margin-left: 25rpx;">
+				  下载
+				</text>
 		      </view>
         </view>
 		<view v-if="contracts.length === 0">
@@ -74,6 +77,7 @@ const submitter = ref(null)
 const serachTitle = ref("输入合同编号查询")
 const isToken = ref(false)
 const level = ref(0)
+const isPrint = ref(false)
 
 onShow(async() => {
 	await tokenValid()
@@ -95,6 +99,7 @@ const tokenValid = async() => {
 			serachTitle.value = '输入采购员姓名查询'
 			isToken.value = true
 			level.value = res.Level
+			isPrint.value = res.isPrint
 		}
 	}
 }
@@ -132,6 +137,8 @@ function getAuditStatusClass(status) {
       return 'status-rejected';
     case '已作废':
       return 'status-unsubmitted';
+	case '下载':
+	  return 'status-approved';
     default:
       return '';
   }
