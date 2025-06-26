@@ -306,9 +306,13 @@
     </view>
 
     <view class="section submit-section">
-      <button class="submit-btn" @click="chooseFile">选择文件</button>
-	  <view v-if="fileName" class="file-name">已选择文件：{{ fileName }}</view>
-      <button class="submit-btn" @click="sub">提交</button>
+      <view style="display: flex; gap: 20rpx;">
+		  <button class="submit-btn" @click="chooseFile">选择文件</button>
+		  <button class="submit-btn" @click="sub">提交</button>
+	  </view>
+      <view>
+		  <view v-if="fileName" class="file-name">已选择文件：{{ fileName }}</view>
+	  </view>
     </view>
   </view>
 </template>
@@ -452,7 +456,6 @@
 	const selectResult = async (item) => {
 	  partyAName.value = item.split(' ')[1]
 	  filteredResults.value = []
-	  console.log(item.split(' ')[0])
 	  // 可以根据选择的结果跳转页面或执行其他操作
 	  await getRebateUnit(item.split(' ')[0])
 	}
@@ -533,13 +536,12 @@
 	//返利形式回调
 	const rebateTypeMethodcb = (e) => {
 		const cbList = e.detail.value
-		console.log(cbList)
-		rebateMethod.value = []
+		rebateTypeMethod.value = []
 		for (var i = 0; i < cbList.length; i++) {
 			var index = cbList[i]
 			var text = range4[index].text
 			if (text !== '其他') {
-				rebateMethod.value.push(text)
+				rebateTypeMethod.value.push(text)
 			}
 		}
 		if (cbList.includes(4)) {
@@ -549,7 +551,6 @@
 			//如果没有勾到其他选项，则清空其他对象的值
 			showDatarebateType.value = null
 		}
-		
 		if (cbList.length === 0) {
 			showData3.value = false
 		}
@@ -564,7 +565,6 @@
 		for (var i = 0; i < cbList.length; i++) {
 			var index = cbList[i]
 			var text = range2[index].text
-			console.log(text)
 			if (text !== '其他') {
 				policyType.value.push(text)
 			}
@@ -653,10 +653,14 @@
 			return
 		}
 		
+		if (showDatarebateType.value != '' && showDatarebateType.value != '') {
+			rebateTypeMethod.value.push(showDatarebateType.value)
+		}
+		
 		if (totalPurchaseAmount.value == null) {
 			totalPurchaseAmount.value == 0
 		}
-		
+				
 		// if (purchasePolicy.value == null || purchasePolicy.value == '') {
 		// 	showToast({'title': '请填写购进政策!'})
 		// 	return
@@ -812,7 +816,7 @@
 				businessReward: businessReward.value,
 				inventoryQuantity: inventoryQuantity.value,
 				purchaseUnit: purchaseUnit.value,
-				rebateMethod: showData1other.value,
+				rebateMethod: partyAName.value,
 				commitmentPaymentDate: commitmentPaymentDate.value,
 				commitmentPaymentDateEnd: commitmentPaymentDateEnd.value,
 				policyExecutionMethod: policyExecutionMethod.value.toString(),
@@ -821,7 +825,8 @@
 				activityEndDate: activityEndDate.value,
 				submitter: submitter.value,
 				submissionDateDetailList: lists.value,
-				filePath: filePath.value
+				filePath: filePath.value,
+				rebateForm: rebateTypeMethod.value.toString()
 			}
 			
 			//提交数据上去
@@ -905,7 +910,15 @@
 	}
 </script>
 
-<style>
+<style scoped>
+.submit-section {
+	display: flex;
+	gap: 10rpx;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
 /* 卡片背景色（循环色系） */
 .card:nth-child(4n+1) {
   background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
