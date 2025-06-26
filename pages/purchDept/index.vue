@@ -34,7 +34,7 @@
     </view>
 
     <view class="section products-section">
-      <text class="section-title">1. 药品名称，规则，单位，数量，单价，金额</text>
+      <text class="section-title">药品名称，规则，单位，数量，单价，金额</text>
       
       <!-- 横向滚动容器 -->
           <scroll-view scroll-x class="scroll-container" enable-flex>
@@ -159,63 +159,71 @@
         </view>
       </view>
     </view>
-
+	
+	<view class="section policy-section">
+	  <text class="section-title">政策类型：</text>
+	  <uni-data-checkbox :localdata="range2" @change="policyTypecb" multiple></uni-data-checkbox>
+	  <view v-if="showData2" class="conditional-field">
+	    <uni-easyinput type="textarea" placeholder="请输入政策类型" v-model="showData2other" :clearable="false"></uni-easyinput>
+	  </view>
+	</view>
+	
     <!-- 政策部分 2-11 -->
-    <view class="section policy-section">
-      <text class="section-title">2. 购进政策：</text>
+    <view class="section policy-section" v-if="showPurchasePolicy">
+      <text class="section-title">购进政策：</text>
       <uni-easyinput type="textarea" placeholder="请输入购进政策" v-model="purchasePolicy" :clearable="false"></uni-easyinput>
     </view>
 
-    <view class="section policy-section">
-      <text class="section-title">3. 终端政策：</text>
+    <view class="section policy-section" v-if="showTerminalPolicy">
+      <text class="section-title">终端政策：</text>
       <uni-easyinput type="textarea" placeholder="请输入终端政策" v-model="terminalPolicy" :clearable="false"></uni-easyinput>
     </view>
 
     <view class="section policy-section">
-      <text class="section-title">4. 业务奖励：</text>
+      <text class="section-title">业务奖励：</text>
       <uni-easyinput type="textarea" placeholder="请输入业务奖励" v-model="businessReward" :clearable="false"></uni-easyinput>
     </view>
 
     <view class="section policy-section">
-      <text class="section-title-none">5. 库存数量：</text>
+      <text class="section-title-none">库存数量：</text>
       <uni-easyinput type="number" placeholder="请输入库存数量" v-model="inventoryQuantity" :clearable="false"></uni-easyinput>
     </view>
 
     <view class="section policy-section">
-      <text class="section-title">6. 购进单位：</text>
+      <text class="section-title">购进单位：</text>
       <uni-easyinput type="textarea" placeholder="请输入购进单位" v-model="purchaseUnit" :clearable="false"></uni-easyinput>
     </view>
 
     <view class="section policy-section">
-      <text class="section-title">7. 返利单位：</text>
+      <text class="section-title">返利单位：</text>
 	  <text class="amount-chinese">返利单位：{{partyAName}}</text>
     </view>
 
     <view class="section policy-section">
-      <text class="section-title">8. 承诺支付日期：</text>
+      <text class="section-title">承诺支付日期：</text>
       <uni-datetime-picker placeholder="选择支付日期" type="date" v-model="commitmentPaymentDate" :clearable="false"></uni-datetime-picker>
-	  <text class="date-separator">至</text>
-	  <uni-datetime-picker placeholder="选择结束时间" type="date" v-model="commitmentPaymentDateEnd" :clearable="false"></uni-datetime-picker>
+	  <!-- <text class="date-separator">至</text>
+	  <uni-datetime-picker placeholder="选择结束时间" type="date" v-model="commitmentPaymentDateEnd" :clearable="false"></uni-datetime-picker> -->
     </view>
 
     <view class="section policy-section">
-      <text class="section-title">9. 政策执行方式：</text>
+      <text class="section-title">政策执行方式：</text>
       <uni-data-checkbox :localdata="range1" @change="policyExecutionMethodcb" multiple></uni-data-checkbox>
       <view v-if="showData" class="conditional-field">
         <uni-easyinput type="textarea" placeholder="请输入政策执行方式" v-model="showDataother"></uni-easyinput>
       </view>
     </view>
+	
+	<view class="section policy-section">
+	  <text class="section-title">返利形式：</text>
+	  <uni-data-checkbox :localdata="range4" @change="rebateTypeMethodcb" multiple></uni-data-checkbox>
+	  <view v-if="showData3" class="conditional-field">
+	    <uni-easyinput type="textarea" placeholder="请填写返利形式" v-model="showDatarebateType"></uni-easyinput>
+	  </view>
+	</view>
 
     <view class="section policy-section">
-      <text class="section-title">10. 政策类型：</text>
-      <uni-data-checkbox :localdata="range2" @change="policyTypecb" multiple></uni-data-checkbox>
-      <view v-if="showData2" class="conditional-field">
-        <uni-easyinput type="textarea" placeholder="请输入政策类型" v-model="showData2other" :clearable="false"></uni-easyinput>
-      </view>
-    </view>
-
-    <view class="section policy-section">
-      <text class="section-title">11. 活动时间：</text>
+      <text class="section-title">活动时间：</text>
       <view class="date-range">
         <uni-datetime-picker placeholder="选择起始时间" type="date" v-model="activityStartDate" :clearable="false"></uni-datetime-picker>
         <text class="date-separator">至</text>
@@ -224,7 +232,7 @@
     </view>
 
     <view class="section signature-section">
-      <text class="section-title">12. 本协议一式两份，乙方留存一份，甲方执一份，自双方代表签字或盖章之日起生效，具有同等效力</text>
+      <text class="section-title">本协议一式两份，乙方留存一份，甲方执一份，自双方代表签字或盖章之日起生效，具有同等效力</text>
       
       <view class="party-details">
         <view class="party-info">
@@ -329,7 +337,9 @@
 	const showData1 = ref(false)
 	const showData1other = ref(null)
 	const showData2 = ref(false)
+	const showData3 = ref(false)
 	const showData2other = ref(null)
+	const showData3other = ref(null)
 	const lists = ref([{productId: '', drugName: '', manufacturer: '', specification: '', unit: '', quantity: null, remarks: '', supplementDiff: null}])
 	const { chooseFile, uploadFile, fileName } = useUploader(`${API_BASE_URL}` + '/public/store/view/mod/uploadFile')
 	const chNum = ref(null)
@@ -374,6 +384,8 @@
 	const policyExecutionMethod = ref([])
 	//政策类型
 	const policyType = ref([])
+	//返利形式
+	const rebateTypeMethod = ref([])
 	//活动起始时间
 	const activityStartDate = ref(null)
 	//活动结束时间
@@ -384,7 +396,17 @@
 	const totalPurchaseAmount = ref(null)
 	//服务器保存的图片路径
 	const filePath = ref(null)
+	
 	const inputStyle = {height: '72rpx',fontSize: '28rpx'}
+	
+	const showCustompolicyType = ref([])
+	
+	const showPurchasePolicy = ref(false)
+	
+	const showTerminalPolicy = ref(false)
+	
+	const showDatarebateType = ref(null)
+	
 	
 	const range = [
 		{"value": 0,"text": "票折"},{"value": 1,"text": "返现"},{"value": 2,"text": "返利单位"}
@@ -396,6 +418,9 @@
 		{"value": 0,"text": "购进政策"},{"value": 1,"text": "终端政策"},{"value": 2,"text": "库存处理"},{"value": 3,"text": "活动赞助"},{"value":4 ,"text": "季度返利"},{"value": 5,"text": "年度返利"},{"value": 6,"text": "其他"}
 	]
 	const range3 = ref([])
+	const range4 = [
+		{"value": 0,"text": "票折"},{"value": 1,"text": "现金"},{"value": 2,"text": "返货"},{"value": 3,"text": "库存"},{"value": 4,"text": "其他"}
+	]
 	
 	const NaviQuery = () => {
 		uni.navigateTo({
@@ -424,10 +449,33 @@
 	}
 	
 	// 选择某个搜索结果
-	const selectResult = (item) => {
-	  partyAName.value = item
+	const selectResult = async (item) => {
+	  partyAName.value = item.split(' ')[1]
 	  filteredResults.value = []
+	  console.log(item.split(' ')[0])
 	  // 可以根据选择的结果跳转页面或执行其他操作
+	  await getRebateUnit(item.split(' ')[0])
+	}
+	
+	const getRebateUnit = async (rebateId) => {
+		const res = await requestFast.post('/public/store/view/mod/searchRebateUnitDetail', {rebateId: rebateId})
+		if (res.code === 200) {
+			var result = res.data
+			partyAAddress.value = result.rebateUnitAddress
+			partyAAccount.value = result.account
+			partyATaxId.value = result.taxNumber
+			partyAPhone.value = result.rebateUnitPhone
+			partyARepresentative.value = result.signatory
+			partyABank.value = result.openingBank
+		}
+		if (res.code === 500) {
+			partyAAddress.value = null
+			partyAAccount.value = null
+			partyATaxId.value = null
+			partyAPhone.value = null
+			partyARepresentative.value = null
+			partyABank.value = null
+		}
 	}
 	
 	//上传文件
@@ -467,37 +515,74 @@
 			var index = cbList[i]
 			var text = range1[index].text
 			if (text !== '其他') {
-				showData.value = false
 				policyExecutionMethod.value.push(text)
-				//清楚绑定数据避免其他选项输入后再点击其他而忽略存在的值
-				showDataother.value = null
-			} else {
-				showData.value = true
 			}
+			if (cbList.includes(2)) {
+				showData.value = true
+			} else {
+				showData.value = false
+				showDataother.value = null
+			}
+			
 		}
 		if (cbList.length === 0) {
 			showData.value = false
 		}
 	}
 	
+	//返利形式回调
+	const rebateTypeMethodcb = (e) => {
+		const cbList = e.detail.value
+		console.log(cbList)
+		rebateMethod.value = []
+		for (var i = 0; i < cbList.length; i++) {
+			var index = cbList[i]
+			var text = range4[index].text
+			if (text !== '其他') {
+				rebateMethod.value.push(text)
+			}
+		}
+		if (cbList.includes(4)) {
+			showData3.value = true
+		} else {
+			showData3.value = false
+			//如果没有勾到其他选项，则清空其他对象的值
+			showDatarebateType.value = null
+		}
+		
+		if (cbList.length === 0) {
+			showData3.value = false
+		}
+	}
+	
+	
 	//政策类型回调
 	const policyTypecb = (e) => {
 		const cbList = e.detail.value
 		policyType.value = []
+		showCustompolicyType.value = []
 		for (var i = 0; i < cbList.length; i++) {
 			var index = cbList[i]
 			var text = range2[index].text
+			console.log(text)
 			if (text !== '其他') {
-				showData2.value = false
 				policyType.value.push(text)
-				//清楚绑定数据避免其他选项输入后再点击其他而忽略存在的值
-				showData2other.value = null
-			} else {
-				showData2.value = true
 			}
+			showPurchasePolicy.value = policyType.value.includes('购进政策')
+			showTerminalPolicy.value = policyType.value.includes('终端政策')
 		}
+		
+		if (cbList.includes(6)) {
+			showData2.value = true
+		} else {
+			showData2.value = false
+			showData2other.value = null
+		}
+		
 		if (cbList.length === 0) {
 			showData2.value = false
+			showPurchasePolicy.value = false
+			showTerminalPolicy.value = false
 		}
 	}
 	
@@ -559,6 +644,10 @@
 			policyType.value.push(showData2other.value)
 		}
 		
+		if (showData3other.value != '' && showData3other.value != null) {
+			policyType.value.push(showData3other.value)
+		}
+		
 		if (partyAName.value == null || partyAName.value == '') {
 			showToast({'title': '甲方公司不能为空!'})
 			return
@@ -568,15 +657,15 @@
 			totalPurchaseAmount.value == 0
 		}
 		
-		if (purchasePolicy.value == null || purchasePolicy.value == '') {
-			showToast({'title': '请填写购进政策!'})
-			return
-		}
+		// if (purchasePolicy.value == null || purchasePolicy.value == '') {
+		// 	showToast({'title': '请填写购进政策!'})
+		// 	return
+		// }
 		
-		if (terminalPolicy.value == null || terminalPolicy.value == '') {
-			showToast({'title': '请填写终端政策!'})
-			return
-		}
+		// if (terminalPolicy.value == null || terminalPolicy.value == '') {
+		// 	showToast({'title': '请填写终端政策!'})
+		// 	return
+		// }
 		
 		if (businessReward.value == null || businessReward.value == '') {
 			showToast({'title': '请填写业务奖励!'})
@@ -592,10 +681,10 @@
 			return
 		}
 		
-		if (showData1other.value == null || showData1other.value == '') {
-			showToast({'title': '请填写返利单位'})
-			return
-		}
+		// if (showData1other.value == null || showData1other.value == '') {
+		// 	showToast({'title': '请填写返利单位'})
+		// 	return
+		// }
 		
 		if (commitmentPaymentDate.value == null || commitmentPaymentDate.value == '') {
 			showToast({'title': '请选择承诺支付日期!'})
@@ -671,7 +760,7 @@
 		}
 		
 		if (submitter.value == null || submitter.value == '') {
-			showToast({'title': '请输入采购员编号'})
+			showToast({'title': '请选择采购员'})
 			return
 		}
 				
