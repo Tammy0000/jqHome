@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { onLoad, onReady, onShow } from '@dcloudio/uni-app'
 import requestFast from '../utils/requestFast'
 
@@ -73,6 +73,9 @@ const secondaryColor = ref('#4CAF50') // 绿色
 
 // 用户信息
 const userName = ref('未登录用户')
+
+//用户登记
+const level = ref(0)
 
 // 公告信息
 const announcements = ref([])
@@ -182,7 +185,7 @@ const initData = () => {
     { name: '用户登录', icon: 'person-filled', color: '#2196F3', path: '/pages/login' },
     { name: '通知', icon: 'notification-filled', color: '#9C27B0', path: '/pages/notifications/index' },
     { name: '库存', icon: 'shop-filled', color: '#F44336', path: '/pages/inventory/index' },
-    { name: '订单', icon: 'cart-filled', color: '#673AB7', path: '/pages/inventory/index' }
+    { name: '订单', icon: 'cart-filled', color: '#673AB7', path: '/pages/inventory/index' },
   ]
   
   // 初始化主要业务模块
@@ -207,16 +210,22 @@ const initData = () => {
   ]
 }
 
+watch(level, (newValue, oldValue) => {
+	console.log(newValue)
+})
+
 // 生命周期
 onLoad(async() => {
   // 页面加载时初始化数据
-  initData()
+  // initData()
 })
 
 onShow(async() => {
+	initData()
 	const res = await requestFast.get('/public/store/view/mod/getUserInfo')
-	if (res.code === 200) {
+	if (res.code === 200 || res.Level > 1) {
 		userName.value = res.Name
+		quickActions.value.push({ name: '采购部', icon: 'personadd-filled', color: '#26b767', path: '/pages/inventory/index' })
 	}
 })
 

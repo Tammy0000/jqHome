@@ -4,11 +4,9 @@
       <text class="company-name">广东济群药业有限公司</text>
       <text class="contract-number">合同编号: JQ</text>
     </view>
-	
 		<view class="button-container" >
 		  <button class="search-button" size="mini" @click="NaviQuery">查询合同</button>
 		</view>
-
     <view class="section parties-section">
       <view class="party-input">
         <text class="label">甲方：</text>
@@ -459,7 +457,6 @@
 	  // 可以根据选择的结果跳转页面或执行其他操作
 	  await getRebateUnit(item.split(' ')[0])
 	}
-	
 	const getRebateUnit = async (rebateId) => {
 		const res = await requestFast.post('/public/store/view/mod/searchRebateUnitDetail', {rebateId: rebateId})
 		if (res.code === 200) {

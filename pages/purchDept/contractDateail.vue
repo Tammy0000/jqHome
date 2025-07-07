@@ -238,7 +238,7 @@ const handleAudit = async() => {
   for (var i = 0; i < approvalStatus.value.length; i++) {
 	var title = approvalStatus.value[i]
 	if (title === '未审核') {
-		itemList.push('弃审')
+		itemList.push('驳回')
 		continue
 	}
 	itemList.push(title.substring(1,3))
@@ -260,7 +260,7 @@ const handleAudit = async() => {
     success: (res) => {
       const action = itemList[res.tapIndex];
       if (action === '审核') confirmAudit('已审核');
-      else if (action === '弃审') confirmAudit('未审核');
+      else if (action === '驳回') confirmAudit('未审核');
       else if (action === '作废') confirmAudit('已作废');
       else if (action === '标记为普通合同') confirmAudit('普通合同');
       else if (action === '标记为重点合同') confirmAudit('重点合同');
@@ -280,17 +280,17 @@ const confirmAudit = (newStatus) => {
 	}
   uni.showModal({
     title: `确认${newStatus}`,
-    content: `您确定要将订单标记为【${newStatus}】吗？`,
+    content: `您确定要将订单标记为【${newStatus === '未审核' ? '驳回' : newStatus}】吗？`,
     success: async (res) => {
       if (res.confirm) {
         auditStatus.value = newStatus;
 		const res = await requestFast.post('/public/store/view/mod/editAuditStatus', {fm: fm.value, auditStatus: newStatus})
-		console.log(res)
 		if (res.code === 200) {
 			await detail(fm.value)
+			await findApprovalStatusByUserId(fm.value)
 		}
         uni.showToast({
-          title: res.code === 200 ? `${contents}成功` : `${contents}失败`,
+          title: res.code === 200 ? `${contents === '未审核' ? '驳回' : contents}成功` : `${contents === '未审核' ? '驳回' : contents}失败`,
           icon: res.code === 200 ? 'success' : 'fail'
         });
       }

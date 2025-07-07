@@ -52,7 +52,7 @@
 				<text class="audit-status" :class="getAuditStatusClass(contract.auditStatus)" style="margin-left: 25rpx;">
 				  {{ contract.auditStatus }}
 				</text>
-				<text class="audit-status" :class="getAuditStatusClass('下载')" style="margin-left: 25rpx;">
+				<text class="audit-status" :class="getAuditStatusClass('下载')" style="margin-left: 25rpx;" @click.stop="dw(contract.formNumber)">
 				  下载
 				</text>
 		      </view>
@@ -71,6 +71,8 @@ import {onShow, onLoad} from '@dcloudio/uni-app'
 import requestFast from '@/utils/requestFast';
 import { showToast } from '@/utils/showToast';
 import { checkLogin } from '../../utils/auth';
+import { downloadFile } from '@/utils/downloadUtil.js';
+import { API_BASE_URL } from '../../utils/config';
 
 const contracts = ref([]);
 const submitter = ref(null)
@@ -84,12 +86,18 @@ onShow(async() => {
 	await contractOrderListByUserId()
 })
 
+const dw = async(fm) => {
+	var uri = API_BASE_URL + '/public/analysis/moudle/v3/' + fm
+	console.log(uri)
+	await downloadFile(uri, fm + '.xlsx')
+}
+
 const contractOrderListByUserId = async () => {
 	const res = await requestFast.get('/public/store/view/mod/contractOrderListByUserId')
 	if (res.code === 200) {
 		contracts.value = res.data
 	}
-}
+} 
 
 const tokenValid = async() => {
 	const token = uni.getStorageSync('token')
