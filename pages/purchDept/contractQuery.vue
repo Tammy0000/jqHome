@@ -52,7 +52,11 @@
 				<text class="audit-status" :class="getAuditStatusClass(contract.auditStatus)" style="margin-left: 25rpx;">
 				  {{ contract.auditStatus }}
 				</text>
-				<text class="audit-status" :class="getAuditStatusClass('下载')" style="margin-left: 25rpx;" @click.stop="dw(contract.formNumber)">
+				<text class="audit-status" 
+				:class="getAuditStatusClass('下载')" 
+				style="margin-left: 25rpx;"
+				v-if="isPrint"
+				@click.stop="dw(contract.formNumber)">
 				  下载
 				</text>
 		      </view>
