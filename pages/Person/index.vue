@@ -51,6 +51,60 @@
         <button class="btn-confirm" @click="handleChangePassword">确认修改</button>
       </view>
     </view>
+  
+	<view class="admin-context" v-if="userInfo.level > 1">
+	  <view class="section-header">
+	    <text>账号管理</text>
+	  </view>
+	  <!-- 新增采购部成员 -->
+	  <view style="margin: 20rpx 0; border-bottom: 1rpx solid #e0e0e0;">
+	    <text>新增采购部成员</text>
+	    <view style="display: flex;">
+	      <text style="flex: 1; align-self: center;">账号:</text>
+	      <uni-easyinput style="flex: 6; margin-top: 20rpx;" placeholder="请输入英克ID" type="number" v-model="registerUser.userId"></uni-easyinput>
+	    </view>
+	    <view style="display: flex;">
+	      <text style="flex: 1; align-self: center; padding-top: 2rpx;">姓名:</text>
+	      <uni-easyinput style="flex: 6; margin-top: 20rpx;" placeholder="请输入姓名" v-model="registerUser.userName"></uni-easyinput>
+	    </view>
+		<view style="margin-top: 20rpx;">
+			<text>打印权限</text>
+			<uni-data-checkbox :localdata="printData" style="margin-top: 20rpx;" v-model="registerUser.isPrint"></uni-data-checkbox>
+		</view>
+		<view style="width: 100%; display: flex; margin: 20rpx 0; justify-content: flex-end;">
+			<view style="display: flex; align-content: center;">
+				<button size="mini" style=" transform: scale(0.98); background-color: green; color: white;" @click="register">新增</button>
+			</view>
+		</view>
+	  </view>
+	  <view style="margin: 20rpx 0; ">
+		<text style="color: #4a90e2;">账号状态设置</text>
+		<view style="margin: 20rpx 0;" class="input-admin">
+			<text style="align-self: center; margin-right: 20rpx;">账号:</text>
+			<uni-easyinput placeholder="输入英克ID" type="number"></uni-easyinput>
+			<button style="background-color: #4a90e2; color: white; border-radius: 25rpx; " size="mini">检查</button>
+		</view>
+		<view>
+			<text class="account-info">账号：</text>
+			<text class="account-info">用户名：</text>
+			<view style="display: flex; width: 100%; align-items: center;">
+				<text class="account-info" style="margin-top: 8rpx; flex: 0.5;">打印权限：{{userInfo.print}}</text>
+				<button size="mini" style="background-color: #4a90e2; color: white; border-radius: 25rpx; padding: 0 25rpx;">更改状态</button>
+			</view>
+			<view style="display: flex; width: 100%; align-items: center;">
+				<text class="account-info" style="margin-top: 8rpx; flex: 0.4;">密码重置：</text>
+				<button size="mini" style="background-color: #4a90e2; color: white; border-radius: 25rpx; padding: 0 25rpx;">重置</button>
+			</view>
+			<view style="display: flex; width: 100%; flex-direction: column;">
+				<text class="account-info" style="margin-top: 8rpx;">用户组：{{userInfo.userRole}}</text>
+				<view>
+					<uni-data-checkbox :multiple="false" :localdata="useRole"></uni-data-checkbox>
+				</view>
+				<button size="mini" style="color: white; background-color: #4a90e2; border-radius: 25rpx; padding: 0 15rpx; ">更改用户组</button>
+			</view>
+		</view>
+	  </view>
+	</view>
   </view>
 </template>
 
@@ -58,6 +112,12 @@
 import { ref, reactive } from 'vue';
 import requestFast from '@/utils/requestFast.js'
 import {onShow} from '@dcloudio/uni-app'
+import {showModal} from '@/utils/showModal.js'
+import {showToast} from '@/utils/showToast.js'
+
+const printStatus = ref(0)
+const printData = [{text: '是', value: 1}, {text: '否', value: 0}]
+const useRole = ref([{text: '采购员', value: 1}, {text: '初级审核', value: 2}, {text: '中级审核', value: 3}, {text: '高级审核', value: 4}])
 
 onShow(async() => {
 	await loading()
@@ -66,8 +126,17 @@ onShow(async() => {
 // 用户信息（模拟）
 const userInfo = ref({
   username: '未登录用户',  // 用户名
-  userId: '123456789' // 用户ID
+  userId: '123456789', // 用户ID
+  print: '否', //打印权限
+  userRole: '采购员', //角色组
+  level: 0 //权限等级
 });
+
+const registerUser = ref({
+	userName: '',
+	isPrint: 0,
+	userId: ''
+})
 
 // 表单数据：避免循环引用，使用 reactive 或 shallowReactive
 const formValues = reactive({
@@ -105,6 +174,27 @@ const passwordRules = {
 // 获取表单引用
 const passwordForm = ref(null);
 
+//注册
+const register = async() => {
+	if (registerUser.value.userId === '') {
+		showToast({title: '用户ID不能为空'})
+		return
+	}
+	if (registerUser.value.userName === '') {
+		showToast({title: '用户名不能为空'})
+		return
+	}
+	const res = await requestFast.post('/public/store/view/mod/register', {
+		userName: registerUser.value.userName,
+		userId: registerUser.value.userId,
+		isPrint: registerUser.value.isPrint
+	})
+	uni.showModal({
+		showCancel:false,
+		content:res.msg
+	})
+}
+
 // 修改密码处理
 const handleChangePassword = async () => {
   try {
@@ -141,9 +231,11 @@ const handleChangePassword = async () => {
 
 const loading = async() => {
 	const res = await requestFast.get('/public/store/view/mod/getUserInfoV2')
+	console.log(res.Level)
 	if (res.code === 200) {
 		userInfo.value.username = res.Name
 		userInfo.value.userId = res.userId
+		userInfo.value.level = res.Level
 	}
 }
 
@@ -162,7 +254,27 @@ const updatePasswordForm = (newFormValues) => {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+//账号信息
+.account-info {
+	display: block;
+	margin-bottom: 20rpx;
+}
+
+//输入框区域
+.input-admin {
+	display: flex;
+	width: 100%;
+}
+
+//管理员设置区域
+.admin-context {
+	background: white;
+	border-radius: 15rpx;
+	margin-top: 20rpx;
+	padding: 20rpx;
+}
+	
 .personal-center {
   padding: 20rpx;
   background-color: #f5f5f5;
