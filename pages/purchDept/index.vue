@@ -51,7 +51,13 @@
                   :inputBorder="false"
                   :styles="inputStyle"
                   placeholder-style="color: #aaa; font-size: 26rpx"
+				  @clear="resetLists(index)"
+				  @input="cleanInput(index, $event)"
+				  @blur="searchInput(index)"
                 />
+				<!-- <view style="display: grid; width: 100%; justify-content: flex-end;">
+					<button size="mini" style="border-radius: 25rpx; border: 1rpx solid black; padding: 0rpx 15rpx;" @click.stop="searchInput(index)">检索</button>
+				</view> -->
               </view>
       
               <!-- 药品名称 -->
@@ -104,7 +110,7 @@
       
               <!-- 数量 -->
               <view class="field">
-                <text class="label">数量</text>
+                <text class="label" style="color: black;">数量</text>
                 <uni-easyinput
                   type="number"
                   v-model="item.quantity"
@@ -117,7 +123,7 @@
       
               <!-- 补差/盒 -->
               <view class="field">
-                <text class="label">补差/盒</text>
+                <text class="label" style="color: black;">补差/盒</text>
                 <uni-easyinput
                   type="number"
                   v-model="item.supplementDiff"
@@ -130,7 +136,7 @@
       
               <!-- 备注 -->
               <view class="field">
-                <text class="label">备注</text>
+                <text class="label" style="color: black;">备注</text>
                 <uni-easyinput
                   v-model="item.remarks"
                   placeholder="请输入备注"
@@ -189,7 +195,7 @@
 
     <view class="section policy-section">
       <text class="section-title">购进单位：</text>
-      <uni-easyinput type="textarea" placeholder="请输入购进单位" v-model="purchaseUnit" :clearable="false"></uni-easyinput>
+      <uni-easyinput type="textarea" placeholder="请输入一个或多个购进单位，以逗号分隔" v-model="purchaseUnit" :clearable="false"></uni-easyinput>
     </view>
 
     <view class="section policy-section">
@@ -316,7 +322,7 @@
 </template>
 
 <script setup>
-	import { ref, computed } from 'vue';
+	import { ref, computed, watch } from 'vue';
 	import { showToast } from '@/utils/showToast';
 	import { showModal } from '@/utils/showModal.js';
 	import requestFast from '@/utils/requestFast';
@@ -395,7 +401,7 @@
 	//提交人
 	const submitter = ref(null)
 	//合计采购金额
-	const totalPurchaseAmount = ref(null)
+	const totalPurchaseAmount = ref(0)
 	//服务器保存的图片路径
 	const filePath = ref(null)
 	
@@ -441,6 +447,7 @@
 	const onInputChange = async (e) => {
 	  if (e === '') {
 		  filteredResults.value = []
+		  resetPartA()
 		  return
 	  }
 	  const res = await requestFast.post('/public/store/view/mod/searchCompany', {keyword:e})
@@ -450,6 +457,49 @@
 	  }
 	}
 	
+	//商品ID信息检索
+	const searchInput = async(index) => {
+		var pid = lists.value[index].productId
+		if (pid === '') return
+		const res = await requestFast.post('/public/store/view/mod/searchInput', {pid: pid})
+		if (res.code === 500) {
+			showToast({title: '药品不存在，请联系采购员或者输入正确的商品ID'})
+			return
+		}
+		lists.value[index].drugName = res.data.commonName
+		lists.value[index].manufacturer = res.data.manufacturer
+		lists.value[index].specification = res.data.specification
+		lists.value[index].unit = res.data.baseUnit
+	}
+	
+	//重置商品ID内容
+	const resetLists = (index) => {
+		lists.value[index].drugName = ''
+		lists.value[index].manufacturer = ''
+		lists.value[index].specification = ''
+		lists.value[index].remarks = ''
+		lists.value[index].supplementDiff = ''
+		lists.value[index].unit = ''
+		lists.value[index].quantity = null
+	}
+	
+	//重置甲方信息
+	const resetPartA = () => {
+		partyAName.value = ''
+		partyAAccount.value = ''
+		partyAAddress.value = ''
+		partyABank.value = ''
+		partyATaxId.value = ''
+		partyAPhone.value = ''
+	}
+	
+	//监听输入框是否为空。
+	const cleanInput = (index, event) => {
+		if (event === '') {
+			resetLists(index)
+		}
+	}
+		
 	// 选择某个搜索结果
 	const selectResult = async (item) => {
 	  partyAName.value = item.split(' ')[1]

@@ -123,7 +123,11 @@ const contractInfo = (fm) => {
 }
 
 const formatAmount = (amount) => {
-  return `¥${amount.toLocaleString()}`;
+  try {
+  	return `¥${amount.toLocaleString()}`;
+  } catch (error) {
+  	return `¥0`;
+  }
 };
 
 const search = async () => {

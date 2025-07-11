@@ -41,7 +41,9 @@
             'highlight-date': isDate(item.value),
             'highlight-money': isMoney(item.value)
           }">{{ item.value }}</text>
-		  <button v-if="item.label === '合同编号'" size="mini" @click="cliCopy">复制</button>
+		  <view style="margin-top: 20rpx; display: flex; width: 100%;">
+			  <button v-if="item.label === '合同编号'" size="mini" @click="cliCopy">复制合同编号</button>
+		  </view>
         </view>
       </view>
     </view>
@@ -91,6 +93,8 @@ import {onLoad} from '@dcloudio/uni-app'
 import requestFast from '@/utils/requestFast.js'
 import { API_BASE_URL_STATIC } from '@/utils/config'
 import { checkLogin } from '../../utils/auth'
+import { showModal } from '../../utils/showModal'
+import { showToast } from '../../utils/showToast'
 
 const partyAName = ref(null)
 const partyAAddress = ref(null)
@@ -243,9 +247,12 @@ const handleAudit = async() => {
 	}
 	itemList.push(title.substring(1,3))
   }
+  
   if (isShowType.value) {
 	  itemList.push(approvalType.value === '重点合同' ? '标记为重点合同' : '标记为普通合同')
   }
+
+  itemList.push('删除合同')
 
   if (itemList.length === 0) {
     uni.showToast({
@@ -264,10 +271,31 @@ const handleAudit = async() => {
       else if (action === '作废') confirmAudit('已作废');
       else if (action === '标记为普通合同') confirmAudit('普通合同');
       else if (action === '标记为重点合同') confirmAudit('重点合同');
+      else if (action === '删除合同') removeFm();
     },
     fail: () => {}
   });
 };
+
+const removeFm = () => {
+	uni.showModal({
+		title:'确认删除',
+		content:'您确定要将此政策删除，且不可以恢复吗？',
+		success: async(res) => {
+			if (res.confirm) {
+				const _res = await requestFast.post('/public/store/remove/mod/removeSubmissionDetail', {fm: fm.value})
+				if (_res.code === 500) {
+					showToast({title: '删除订单失败!请联系管理员处理', icon:'fail'})
+					return
+				}
+				showToast({title: '删除成功!', icon:'successful'})
+				uni.redirectTo({
+					url:'/pages/purchDept/contractQuery'
+				})
+			}
+		}
+	})
+}
 
 const confirmAudit = (newStatus) => {
 	var contents = ''
@@ -280,7 +308,7 @@ const confirmAudit = (newStatus) => {
 	}
   uni.showModal({
     title: `确认${newStatus}`,
-    content: `您确定要将订单标记为【${newStatus === '未审核' ? '驳回' : newStatus}】吗？`,
+    content: `您确定要将政策标记为【${newStatus === '未审核' ? '驳回' : newStatus}】吗？`,
     success: async (res) => {
       if (res.confirm) {
         auditStatus.value = newStatus;
