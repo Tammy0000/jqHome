@@ -15,7 +15,7 @@
           <view class="info-item"><text class="label">签约代表：</text>{{ partyARepresentative }}</view>
           <view class="info-item"><text class="label">签约时间：</text>{{ partyAContractDate }}</view>
         </view>
-
+		
         <view class="party-info">
           <view class="sub-section-title">乙方信息</view>
           <view class="info-item"><text class="label">公司：</text>{{ partyBName }}</view>
@@ -32,15 +32,21 @@
 	
     <!-- 合同概要 -->
     <view class="section">
-      <view class="section-title">合同概要</view>
+      <view style="display: flex; width: 100%; align-items: center;">
+		  <view class="section-title" style="flex: 1;">合同概要</view>
+		  <button v-if="!isEdit2" style="border: 1rpx solid blue; padding: 0 15rpx; color: blue;" size="mini" @click.stop="editDetail2(1)">编辑</button>
+		  <button v-if="isEdit2" style="border: 1rpx solid transparent; padding: 0 15rpx; color: green;" size="mini" @click.stop="editDetail2(2)">提交</button>
+		  <button v-if="isEdit2" style="border: 1rpx solid transparent; padding: 0 15rpx; color: blue; margin-left: 20rpx;" size="mini" @click.stop="editDetail2(3)">取消</button>
+	  </view>
       <view class="info-grid">
         <view v-for="(item, index) in contractSummary" :key="index" class="info-item">
           <text class="label">{{ item.label }}：</text>
-          <text class="value" :class="{
+          <text v-if="!isEdit2 || item.label === '合同编号'" class="value" :class="{
             'highlight-number': isNumber(item.value),
             'highlight-date': isDate(item.value),
             'highlight-money': isMoney(item.value)
           }">{{ item.value }}</text>
+		  <uni-easyinput v-model="item.value" v-if="isEdit2 && item.label !== '合同编号'"></uni-easyinput>
 		  <view style="margin-top: 20rpx; display: flex; width: 100%;">
 			  <button v-if="item.label === '合同编号'" size="mini" @click="cliCopy">复制合同编号</button>
 		  </view>
@@ -119,6 +125,9 @@ const isShowType = ref(false)
 const isShowStatus = ref(false)
 const approvalType = ref('')
 const approvalStatus = ref([])
+const isEdit1 = ref(false)
+const isEdit2 = ref(false)
+const isEdit3 = ref(false)
 
 onLoad(async(opt) => {
 	fm.value = opt.fromNumber
@@ -158,6 +167,13 @@ const cliCopy = () => {
 			})
 		}
 	})
+}
+
+const editDetail2 = (index) => {
+	if (index !== 2) {
+		isEdit2.value = !isEdit2.value
+		return;
+	}
 }
 
 const findApprovalStatusByUserId = async(fromNumber) => {
@@ -207,7 +223,6 @@ const detail = async(fromNumber) => {
 	contractSummary.value.push({ label: '返利单位', value: res.rebateMethod })
 	contractSummary.value.push({ label: '返利形式', value: res.rebateForm })
 	contractSummary.value.push({ label: '承诺支付日期', value: res.commitmentPaymentDate })
-	// contractSummary.value.push({ label: '承诺支付截止日期', value: res.commitmentPaymentDateEnd })
 	contractSummary.value.push({ label: '政策执行方式', value: res.policyExecutionMethod })
 	contractSummary.value.push({ label: '政策类型', value: res.policyType })
 	contractSummary.value.push({ label: '活动起始时间', value: res.activityStartDate })

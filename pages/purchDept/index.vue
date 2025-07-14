@@ -55,9 +55,6 @@
 				  @input="cleanInput(index, $event)"
 				  @blur="searchInput(index)"
                 />
-				<!-- <view style="display: grid; width: 100%; justify-content: flex-end;">
-					<button size="mini" style="border-radius: 25rpx; border: 1rpx solid black; padding: 0rpx 15rpx;" @click.stop="searchInput(index)">检索</button>
-				</view> -->
               </view>
       
               <!-- 药品名称 -->
