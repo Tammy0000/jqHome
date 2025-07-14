@@ -46,7 +46,7 @@
             'highlight-date': isDate(item.value),
             'highlight-money': isMoney(item.value)
           }">{{ item.value }}</text>
-		  <uni-easyinput v-model="item.value" v-if="isEdit2 && item.label !== '合同编号'"></uni-easyinput>
+		  <uni-easyinput v-model="item.value" v-if="isEdit2 && item.label !== '合同编号' "></uni-easyinput>
 		  <view style="margin-top: 20rpx; display: flex; width: 100%;">
 			  <button v-if="item.label === '合同编号'" size="mini" @click="cliCopy">复制合同编号</button>
 		  </view>
@@ -169,11 +169,44 @@ const cliCopy = () => {
 	})
 }
 
-const editDetail2 = (index) => {
+const editDetail2 = async (index) => {
 	if (index !== 2) {
 		isEdit2.value = !isEdit2.value
+		if (index === 3) {
+			await detail(fm.value)
+			await findApprovalStatusByUserId(fm.value)
+		}
 		return;
 	}
+	uni.showModal({
+		content:'确定提交吗？',
+		success: async (res) => {
+			if (res.confirm) {
+				const _res = await requestFast.post('/public/store/view/mod/editContractOverview', {
+					inventoryQuantity: contractSummary.value[0].value,
+					purchasePolicy: contractSummary.value[1].value,
+					terminalPolicy: contractSummary.value[2].value,
+					businessReward: contractSummary.value[3].value,
+					purchaseUnit: contractSummary.value[4].value,
+					rebateMethod: contractSummary.value[5].value,
+					rebateForm: contractSummary.value[6].value,
+					commitmentPaymentDate: contractSummary.value[7].value,
+					policyExecutionMethod: contractSummary.value[8].value,
+					policyType: contractSummary.value[9].value,
+					activityStartDate: contractSummary.value[10].value,
+					activityEndDate: contractSummary.value[11].value,
+					totalPurchaseAmount: contractSummary.value[12].value,
+					fm: fm.value
+				})
+				if (_res.code === 200) {
+					uni.showToast({
+						icon:'none',
+						title:'提交成功'
+					})
+				}
+			}
+		}
+	})
 }
 
 const findApprovalStatusByUserId = async(fromNumber) => {
@@ -215,10 +248,11 @@ const detail = async(fromNumber) => {
 	auditStatus.value = res.auditStatus
 	isKeyProject.value = res.isKeyProject
 	
+	contractSummary.value = []
 	contractSummary.value.push({ label: '库存数量', value: res.inventoryQuantity })
 	contractSummary.value.push({ label: '购进政策', value: res.purchasePolicy})
 	contractSummary.value.push({ label: '终端政策', value: res.terminalPolicy })
-	contractSummary.value.push({ label: '业务奖励', value: res.businessReward},)
+	contractSummary.value.push({ label: '业务奖励', value: res.businessReward})
 	contractSummary.value.push({ label: '购进单位', value: res.purchaseUnit })
 	contractSummary.value.push({ label: '返利单位', value: res.rebateMethod })
 	contractSummary.value.push({ label: '返利形式', value: res.rebateForm })
