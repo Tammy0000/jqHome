@@ -2,7 +2,12 @@
   <scroll-view scroll-y class="container">
     <!-- 甲乙双方信息 -->
     <view class="section">
-      <view class="section-title">甲乙双方信息</view>
+      <view style="display: flex; width: 100%; align-items: center;">
+      		  <view class="section-title" style="flex: 1;">甲乙双方信息</view>
+      		  <button v-if="!isEdit1" style="border: 1rpx solid blue; padding: 0 15rpx; color: blue;" size="mini" @click.stop="editDetail1(1)">编辑</button>
+      		  <button v-if="isEdit1" style="border: 1rpx solid transparent; padding: 0 15rpx; color: green;" size="mini" @click.stop="editDetail1(2)">提交</button>
+      		  <button v-if="isEdit1" style="border: 1rpx solid transparent; padding: 0 15rpx; color: blue; margin-left: 20rpx;" size="mini" @click.stop="editDetail1(3)">取消</button>
+      </view>
       <view class="parties-container">
         <view class="party-info">
           <view class="sub-section-title">甲方信息</view>
@@ -11,9 +16,21 @@
           <view class="info-item"><text class="label">账户：</text><text class="highlight-number">{{partyAAccount}}</text></view>
           <view class="info-item"><text class="label">开户行：</text>{{ partyABank }}</view>
           <view class="info-item"><text class="label">税号：</text>{{ partyATaxId }}</view>
-          <view class="info-item"><text class="label">电话：</text><text class="highlight-number">{{ partyAPhone }}</text></view>
-          <view class="info-item"><text class="label">签约代表：</text>{{ partyARepresentative }}</view>
-          <view class="info-item"><text class="label">签约时间：</text>{{ partyAContractDate }}</view>
+          <view class="info-item" v-if="!isEdit1"><text class="label">电话：</text><text class="highlight-number">{{ partyAPhone }}</text></view>
+          <view class="info-item" v-if="isEdit1">
+			  <text class="label">电话：</text>
+			  <uni-easyinput v-model="partyAPhone"></uni-easyinput>
+		  </view>
+          <view class="info-item" v-if="!isEdit1"><text class="label">签约代表：</text>{{ partyARepresentative }}</view>
+          <view class="info-item" v-if="isEdit1">
+			  <text class="label">签约代表：</text>
+			  <uni-easyinput v-model="partyARepresentative"></uni-easyinput>
+          </view>
+          <view class="info-item" v-if="!isEdit1"><text class="label">签约时间：</text>{{ partyAContractDate }}</view>
+          <view class="info-item" v-if="isEdit1">
+          	  <text class="label">签约时间：</text>
+          	  <uni-easyinput v-model="partyAContractDate"></uni-easyinput>
+          </view>
         </view>
 		
         <view class="party-info">
@@ -24,8 +41,16 @@
           <view class="info-item"><text class="label">开户行：</text>{{ partyBBank }}</view>
 		  <view class="info-item"><text class="label">税号：</text>{{ partyBTaxId }}</view>
           <view class="info-item"><text class="label">电话：</text><text class="highlight-number">{{ partyBPhone }}</text></view>
-          <view class="info-item"><text class="label">签约代表：</text>{{ partyBRepresentative }}</view>
-		  <view class="info-item"><text class="label">签约时间：</text>{{ partyBContractDate }}</view>
+          <view class="info-item" v-if="!isEdit1"><text class="label">签约代表：</text>{{ partyBRepresentative }}</view>
+		  <view class="info-item" v-if="isEdit1">
+		  	  <text class="label">签约代表：</text>
+		  	  <uni-easyinput v-model="partyBRepresentative"></uni-easyinput>
+		  </view>
+		  <view class="info-item" v-if="!isEdit1"><text class="label">签约时间：</text>{{ partyBContractDate }}</view>
+		  <view class="info-item" v-if="isEdit1">
+		  	  <text class="label">签约时间：</text>
+		  	  <uni-easyinput v-model="partyBContractDate"></uni-easyinput>
+		  </view>
         </view>
       </view>
     </view>
@@ -56,16 +81,42 @@
 
     <!-- 订单数据 -->
     <view class="section">
-      <view class="section-title">订单明细</view>
+	  <view class="section-title">订单明细</view>
+      <!-- <view class="order-card"> -->
       <view v-for="(order, index) in orders" :key="index" class="order-card">
-        <view class="order-row"><text class="label">药品ID：</text><text class="highlight-id">{{ order.productId }}</text></view>
+		<view style="display: flex; justify-content: flex-end;">
+			<view style="display: flex; gap: 10rpx; margin-bottom: 15rpx;">
+				<button size="mini" v-if="isEdit3List[index]" @click.stop="editDetail3(2, index)">提交</button>
+				<!-- 当子单只有一条的时候，不允许删除子单，避免出错。 -->
+				<button size="mini" v-if="isEdit3List[index] && orders.length > 1" @click.stop="editDetail3(4, index)">删除</button>
+				<button size="mini" v-if="isEdit3List[index]" @click.stop="editDetail3(3, index)">取消</button>
+				<button size="mini" v-if="!isEdit3List[index]" @click.stop="editDetail3(1, index)">编辑</button>
+			</view>
+		</view>
+        <view class="order-row" v-if="!isEdit3List[index]"><text class="label">药品ID：</text><text class="highlight-id">{{ order.productId }}</text></view>
+        <view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+			<text class="label">药品ID：</text>
+			<uni-easyinput type="number" v-model="order.productId" @blur="searchInput(index)"></uni-easyinput>
+		</view>
         <view class="order-row"><text class="label">药品名称：</text>{{ order.drugName }}</view>
         <view class="order-row"><text class="label">生产厂家：</text>{{ order.manufacturer }}</view>
         <view class="order-row"><text class="label">规格：</text>{{ order.specification }}</view>
         <view class="order-row"><text class="label">单位：</text>{{ order.unit }}</view>
-        <view class="order-row"><text class="label">数量：</text><text class="highlight-number">{{ order.quantity }}</text></view>
-        <view class="order-row"><text class="label">补差：</text><text class="highlight-money">{{ order.supplementDiff}}</text></view>
-        <view class="order-row"><text class="label">备注：</text>{{ order.remarks}}</view>
+        <view class="order-row" v-if="!isEdit3List[index]"><text class="label">数量：</text><text class="highlight-number">{{ order.quantity }}</text></view>
+		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+			<text class="label">数量：</text>
+			<uni-easyinput type="number" v-model="order.quantity"></uni-easyinput>
+		</view>
+        <view class="order-row" v-if="!isEdit3List[index]"><text class="label">补差：</text><text class="highlight-money">{{ order.supplementDiff}}</text></view>
+		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+			<text class="label">补差：</text>
+			<uni-easyinput type="number" v-model="order.supplementDiff"></uni-easyinput>
+		</view>
+        <view class="order-row" v-if="!isEdit3List[index]"><text class="label">备注：</text>{{ order.remarks}}</view>
+		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+			<text class="label">备注：</text>
+			<uni-easyinput v-model="order.remarks"></uni-easyinput>
+		</view>
       </view>
     </view>
 
@@ -119,6 +170,7 @@ const partyBAccount = ref(null)
 const partyBPhone = ref(null)
 const partyBRepresentative = ref(null)
 const partyBContractDate = ref(null)
+
 const isKeyProject = ref(false)
 const isShowApproval = ref(false)
 const isShowType = ref(false)
@@ -128,12 +180,23 @@ const approvalStatus = ref([])
 const isEdit1 = ref(false)
 const isEdit2 = ref(false)
 const isEdit3 = ref(false)
+const isEdit3List = ref([])
 
 onLoad(async(opt) => {
 	fm.value = opt.fromNumber
+	await startup()
+})
+
+//用于刷新整个页面
+const startup = async() => {
 	await detail(fm.value)
 	await findApprovalStatusByUserId(fm.value)
-})
+	isEdit3List.value = []
+	for (var i = 0; i < orders.value.length; i++) {
+		//因为不能存储布尔类型。这里只能约定 0为false 1为true
+		isEdit3List.value.push(false)
+	}
+}
 
 const contractSummary1 = [
   { label: '库存数量', value: '500盒' },
@@ -169,12 +232,37 @@ const cliCopy = () => {
 	})
 }
 
+const editDetail1 = async (index) => {
+	if (index !== 2) {
+		isEdit1.value = !isEdit1.value
+		if (index === 3) {
+			await startup()
+		}
+		return;
+	}
+	const res = await showModal({content: '确定提交吗？'})
+	if (res) {
+		const _res = await requestFast.post('/public/store/view/mod/editContractBasicInfo', {
+			partyAPhone: partyAPhone.value,
+			partyARepresentative: partyARepresentative.value,
+			partyAContractDate: partyAContractDate.value,
+			partyBRepresentative: partyBRepresentative.value,
+			partyBContractDate: partyBContractDate.value,
+			fm: fm.value
+		})
+		if (_res.code === 200) {
+			showToast({title:'提交成功!'})
+			isEdit1.value = !isEdit1.value
+			await startup()
+		}
+	}
+}
+
 const editDetail2 = async (index) => {
 	if (index !== 2) {
 		isEdit2.value = !isEdit2.value
 		if (index === 3) {
-			await detail(fm.value)
-			await findApprovalStatusByUserId(fm.value)
+			await startup()
 		}
 		return;
 	}
@@ -201,12 +289,79 @@ const editDetail2 = async (index) => {
 				if (_res.code === 200) {
 					uni.showToast({
 						icon:'none',
-						title:'提交成功'
+						title:'提交成功',
+						success: async() => {
+							isEdit2.value = !isEdit2.value
+							await startup()
+						}
 					})
 				}
 			}
 		}
 	})
+}
+
+const editDetail3 = async (index1, index2) => {
+	if (index1 !== 2) {
+		isEdit3List.value[index2] = !isEdit3List.value[index2]
+		if (index1 === 3) {
+			await startup()
+			return
+		}
+		if (index1 === 4 && orders.value.length > 1) {
+			const _res = await showModal({content: '确认删除此订单？\n ' + orders.value[index2].drugName})
+			if (_res) {
+				const res = await requestFast.post('/public/store/remove/mod/removeContractDetail', {
+					detailId: orders.value[index2].detailId
+				})
+				if (res.code !== 200) {
+					await showToast({title: '删除失败!请联系管理员,或稍后再试'})
+					return
+				}
+				await showToast({title: '删除成功!'})
+				isEdit3List.value[index2] = !isEdit3List.value[index2]
+				await startup()
+			}
+		}
+		return;
+	}
+	
+	//检查商品ID是否为空
+	var productId = orders.value[index2].productId
+	if (productId === null || productId === '') {
+		showToast({title:'请填写正确的商品ID!'})
+		return
+	}
+	//提交数据
+	const res = await requestFast.post('/public/store/view/mod/editContractDetail', {
+		detailId: orders.value[index2].detailId,
+		unit: orders.value[index2].unit,
+		quantity: orders.value[index2].quantity,
+		productId: orders.value[index2].productId,
+		drugName: orders.value[index2].drugName,
+		specification: orders.value[index2].specification,
+		supplementDiff: orders.value[index2].supplementDiff,
+		remarks: orders.value[index2].remarks,
+		manufacturer: orders.value[index2].manufacturer
+	})
+	if (res.code !== 200) {
+		showToast({title:'提交失败，请反馈给管理员'})
+		return
+	}
+	isEdit3List.value[index2] = !isEdit3List.value[index2]
+	await startup()
+}
+
+const searchInput = async(index) => {
+	const res = await requestFast.post('/public/store/view/mod/searchInput', {pid: orders.value[index].productId})
+	if (res.code === 200) {
+		orders.value[index].drugName = res.data.commonName
+		orders.value[index].manufacturer = res.data.manufacturer
+		orders.value[index].specification = res.data.specification
+		orders.value[index].unit = res.data.baseUnit
+		return
+	}
+	showToast({title:'商品信息不存在!'})
 }
 
 const findApprovalStatusByUserId = async(fromNumber) => {
