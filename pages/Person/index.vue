@@ -81,26 +81,26 @@
 		<text style="color: #4a90e2;">账号状态设置</text>
 		<view style="margin: 20rpx 0;" class="input-admin">
 			<text style="align-self: center; margin-right: 20rpx;">账号:</text>
-			<uni-easyinput placeholder="输入英克ID" type="number"></uni-easyinput>
-			<button style="background-color: #4a90e2; color: white; border-radius: 25rpx; " size="mini">检查</button>
+			<uni-easyinput placeholder="输入英克ID" type="number" v-model="ikUser.userId" @input="ikUserInput"></uni-easyinput>
+			<button style="background-color: #4a90e2; color: white; border-radius: 25rpx; " size="mini" @click.stop="checkUser">检查</button>
 		</view>
 		<view>
-			<text class="account-info">账号：</text>
-			<text class="account-info">用户名：</text>
+			<text class="account-info" v-if="ikUser.checkPass">账号：{{ikUser.userId}}</text>
+			<text class="account-info">用户名：{{ikUser.userName}}</text>
 			<view style="display: flex; width: 100%; align-items: center;">
-				<text class="account-info" style="margin-top: 8rpx; flex: 0.5;">打印权限：{{userInfo.print}}</text>
-				<button size="mini" style="background-color: #4a90e2; color: white; border-radius: 25rpx; padding: 0 25rpx;">更改状态</button>
+				<text class="account-info" style="margin-top: 8rpx; flex: 0.5;">打印权限：{{ikUser.isPrint ? '是' : '否'}}</text>
+				<button @click="editUserPrint" size="mini" style="background-color: #4a90e2; color: white; border-radius: 25rpx; padding: 0 25rpx;">更改状态</button>
 			</view>
 			<view style="display: flex; width: 100%; align-items: center;">
-				<text class="account-info" style="margin-top: 8rpx; flex: 0.4;">密码重置：</text>
-				<button size="mini" style="background-color: #4a90e2; color: white; border-radius: 25rpx; padding: 0 25rpx;">重置</button>
+				<text class="account-info" style="margin-top: 8rpx; flex: 0.45;">密码重置：</text>
+				<button @click="resetPassword" size="mini" style="background-color: #4a90e2; color: white; border-radius: 25rpx; padding: 0 25rpx;">重置</button>
 			</view>
 			<view style="display: flex; width: 100%; flex-direction: column;">
 				<text class="account-info" style="margin-top: 8rpx;">用户组：{{userInfo.userRole}}</text>
 				<view>
-					<uni-data-checkbox :multiple="false" :localdata="useRole"></uni-data-checkbox>
+					<uni-data-checkbox v-model="selectRole" :multiple="false" :localdata="useRole"></uni-data-checkbox>
 				</view>
-				<button size="mini" style="color: white; background-color: #4a90e2; border-radius: 25rpx; padding: 0 15rpx; ">更改用户组</button>
+				<button @click="editUserGroup" size="mini" style="color: white; background-color: #4a90e2; border-radius: 25rpx; padding: 0 15rpx; ">更改用户组</button>
 			</view>
 		</view>
 	  </view>
@@ -109,14 +109,16 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import requestFast from '@/utils/requestFast.js'
 import {onShow} from '@dcloudio/uni-app'
 import {showModal} from '@/utils/showModal.js'
 import {showToast} from '@/utils/showToast.js'
 
 const printStatus = ref(0)
+const ikUserID = ref(null)
 const printData = [{text: '是', value: 1}, {text: '否', value: 0}]
+const selectRole = ref(1)
 const useRole = ref([{text: '采购员', value: 1}, {text: '初级审核', value: 2}, {text: '中级审核', value: 3}, {text: '高级审核', value: 4}])
 
 onShow(async() => {
@@ -126,7 +128,7 @@ onShow(async() => {
 // 用户信息（模拟）
 const userInfo = ref({
   username: '未登录用户',  // 用户名
-  userId: '123456789', // 用户ID
+  userId: 123456, // 用户ID
   print: '否', //打印权限
   userRole: '采购员', //角色组
   level: 0 //权限等级
@@ -137,6 +139,112 @@ const registerUser = ref({
 	isPrint: 0,
 	userId: ''
 })
+
+const ikUser = ref({
+	userName: '',
+	userId: '',
+	isPrint: false,
+	level: null,
+	checkPass: false
+})
+
+const ikUserInput = (e) => {
+	if (e === '') {
+		ikUser.value.checkPass = false
+		ikUser.value.userId = ''
+		ikUser.value.isPrint = false
+		ikUser.value.userName = null
+		ikUser.value.level = null
+		selectRole.value = null
+	}
+}
+
+//重置用户密码，
+const resetPassword = async() => {
+	if (!ikUser.value.checkPass) {
+		showToast({title: '请输入英克ID检查后再尝试此操作!'})
+		return
+	}
+	const _res = await showModal({content: `确认重置用户 \n ${ikUser.value.userName}`})
+	if (!_res) return
+	const res = await requestFast.post('/public/store/view/mod/resetPassWord', {
+		userId: ikUser.value.userId,
+	})
+	if (res.code === 200) {
+		await showModal({content: `重置成功! \n 新密码是${res.data}`})
+		return
+	}
+	showToast({title: '重置失败，请联系管理员处理'})
+}
+
+//修改打印权限
+const editUserPrint = async() => {
+	if (!ikUser.value.checkPass) {
+		showToast({title: '请输入英克ID检查后再尝试此操作!'})
+		return
+	}
+	const _res = await showModal({content: `修改用户打印权限？ \n ${ikUser.value.userName}`})
+	if (!_res) return
+	const res = await requestFast.post('/public/store/view/mod/editUserPrint', {
+		userId: ikUser.value.userId
+	})
+	if (res.code === 200) {
+		ikUser.value.isPrint = res.isPrint
+		var printStatus = res.isPrint ? '可以打印' : '不可打印'
+		await showModal({content: `修改打印权限成功! \n 当前打印状态:${printStatus}`})
+		return
+	}
+	showToast({title: '修改权限失败，请联系管理员处理'})
+}
+
+//修改用户组
+const editUserGroup = async() => {
+	if (!ikUser.value.checkPass) {
+		showToast({title: '请输入英克ID检查后再尝试此操作!'})
+		return
+	}
+	const _res = await showModal({content: `修改用户组？ \n ${ikUser.value.userName}`})
+	if (!_res) return
+	if (selectRole.value === ikUser.value.level) {
+		await showModal({content: '当前修改的用户组与原用户组一致，请选择后再尝试修改!'})
+		return
+	}
+	if (selectRole.value < ikUser.value.level) {
+		const _res1 = await showModal({content: '是否要将此用户权限组降级?'})
+		if (!_res1) return
+	}
+	const res = await requestFast.post('/public/store/view/mod/editUserGroup', {
+		userId: ikUser.value.userId,
+		level: selectRole.value
+	})
+	if (res.code === 200) {
+		await showToast({title: '修改用户权限组成功!'})
+		await checkUser()
+		return
+	}
+	showToast({title: '修改用户权限组失败!'})
+}
+
+//检查用户详情
+const checkUser = async() => {
+	if (userInfo.value.userId.toString() === ikUser.value.userId) {
+		showToast({title: '你不能对自己进行操作!'})
+		return
+	}
+	const res = await requestFast.post('/public/store/view/mod/getUserInfo', {
+		userId: ikUser.value.userId
+	})
+	if (res.code !== 200) {
+		showToast({title: '用户不存在!'})
+		return
+	}
+	ikUser.value.level = res.level
+	ikUser.value.userId = res.userId
+	ikUser.value.userName = res.userName
+	ikUser.value.isPrint = res.isPrint
+	selectRole.value = res.level
+	ikUser.value.checkPass = true
+}
 
 // 表单数据：避免循环引用，使用 reactive 或 shallowReactive
 const formValues = reactive({
@@ -231,7 +339,6 @@ const handleChangePassword = async () => {
 
 const loading = async() => {
 	const res = await requestFast.get('/public/store/view/mod/getUserInfoV2')
-	console.log(res.Level)
 	if (res.code === 200) {
 		userInfo.value.username = res.Name
 		userInfo.value.userId = res.userId

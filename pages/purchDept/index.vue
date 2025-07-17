@@ -4,12 +4,15 @@
       <text class="company-name">广东济群药业有限公司</text>
       <text class="contract-number">合同编号: JQ</text>
     </view>
-		<view class="button-container" >
-		  <button class="search-button" size="mini" @click="NaviQuery">查询合同</button>
-		</view>
+	<view class="button-container" >
+	  <button class="search-button" size="mini" @click="NaviQuery">查询合同</button>
+	</view>
+	<view style="margin-bottom: 15rpx;">
+		<text style="color: red; font-size: 15rpx;">红色字段为必填，其余均为选填</text>
+	</view>
     <view class="section parties-section">
       <view class="party-input">
-        <text class="label">甲方：</text>
+        <text class="label" style="color: red;">甲方：</text>
         <uni-easyinput placeholder="请输入甲方公司" v-model="partyAName" :clearable="false" @input="onInputChange"></uni-easyinput>
       </view>
 	  <!-- 搜索结果列表 -->
@@ -22,6 +25,22 @@
 	  		>
 	  		  {{ item }}
 	  		</view>
+	  </view>
+	  <view class="party-input">
+	    <text class="label" style="color: red;">甲方代表：</text>
+	    <uni-easyinput placeholder="请输入甲方代表" v-model="partyARepresentative" :clearable="false" ></uni-easyinput>
+	  </view>
+	  <view class="party-input">
+	    <text class="label" style="color: red;">甲方负责人：</text>
+	    <uni-easyinput placeholder="请输入甲方负责人" v-model="partyAOwner" :clearable="false" ></uni-easyinput>
+	  </view>
+	  <view class="party-input">
+	    <text class="label" style="color: red;">负责人电话：</text>
+	    <uni-easyinput placeholder="请输入甲方负责人电话" v-model="partyAOwnerPhone" :clearable="false" ></uni-easyinput>
+	  </view>
+	  <view class="party-input">
+	    <text class="label">签约日期：</text>
+	    <uni-datetime-picker type="date" placeholder="签约日期" v-model="partyAContractDate" :clearable="false"></uni-datetime-picker>
 	  </view>
       <view class="party-info">
         <text class="section-title">乙方: 责任采购</text>
@@ -107,7 +126,7 @@
       
               <!-- 数量 -->
               <view class="field">
-                <text class="label" style="color: black;">数量</text>
+                <text class="label">数量</text>
                 <uni-easyinput
                   type="number"
                   v-model="item.quantity"
@@ -120,7 +139,7 @@
       
               <!-- 补差/盒 -->
               <view class="field">
-                <text class="label" style="color: black;">补差/盒</text>
+                <text class="label">补差/盒</text>
                 <uni-easyinput
                   type="number"
                   v-model="item.supplementDiff"
@@ -133,7 +152,7 @@
       
               <!-- 备注 -->
               <view class="field">
-                <text class="label" style="color: black;">备注</text>
+                <text class="label">备注</text>
                 <uni-easyinput
                   v-model="item.remarks"
                   placeholder="请输入备注"
@@ -150,15 +169,6 @@
         <button class="action-btn" size="mini" @click="changelistsub" style="margin-left: 15rpx;">删除</button>
       </view>
 
-      <view class="total-amount">
-        <view class="amount-input">
-          <text class="label section-title-none">合计人民币 （小写）：</text>
-          <uni-easyinput type="number" placeholder="请输入金额" @input="changeCh" v-model="totalPurchaseAmount" :clearable="false"></uni-easyinput>
-        </view>
-        <view class="amount-chinese">
-          <text>合计人民币 （大写）：{{chNum}} 元</text>
-        </view>
-      </view>
     </view>
 	
 	<view class="section policy-section">
@@ -185,10 +195,25 @@
       <uni-easyinput type="textarea" placeholder="请输入业务奖励" v-model="businessReward" :clearable="false"></uni-easyinput>
     </view>
 
-    <view class="section policy-section">
-      <text class="section-title-none">库存数量：</text>
-      <uni-easyinput type="number" placeholder="请输入库存数量" v-model="inventoryQuantity" :clearable="false"></uni-easyinput>
-    </view>
+	<view class="section policy-section">
+	  <text class="section-title">活动方式：</text>
+	  <view>
+		  <text style="color: #1a73e8; font-size: 32rpx; ">购进</text>
+		  <uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入购进" v-model="partyAPurchase" :clearable="false"></uni-easyinput>
+	  </view>
+	  <view>
+	  	<text style="color: #1a73e8; font-size: 32rpx; ">促销</text>
+	  	<uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入促销" v-model="partyAOffer" :clearable="false"></uni-easyinput>
+	  </view>
+	  <view>
+	  	<text style="color: #1a73e8; font-size: 32rpx; ">人员奖励</text>
+	  	<uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入人员奖励" v-model="partyASalesTeamBonus" :clearable="false"></uni-easyinput>
+	  </view>
+	  <view>
+	  	<text style="color: #1a73e8; font-size: 32rpx; ">补差</text>
+	  	<uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入补差" v-model="partyAAdJustMent" :clearable="false"></uni-easyinput>
+	  </view>
+	</view>
 
     <view class="section policy-section">
       <text class="section-title">购进单位：</text>
@@ -203,8 +228,6 @@
     <view class="section policy-section">
       <text class="section-title">承诺支付日期：</text>
       <uni-datetime-picker placeholder="选择支付日期" type="date" v-model="commitmentPaymentDate" :clearable="false"></uni-datetime-picker>
-	  <!-- <text class="date-separator">至</text>
-	  <uni-datetime-picker placeholder="选择结束时间" type="date" v-model="commitmentPaymentDateEnd" :clearable="false"></uni-datetime-picker> -->
     </view>
 
     <view class="section policy-section">
@@ -240,33 +263,26 @@
           <text class="party-title section-title">甲方：{{partyAName}}</text>
           <view class="party-fields">
             <view class="detail-field">
-              <text class="label section-title">地址：</text>
-              <uni-easyinput placeholder="地址" v-model="partyAAddress" :clearable="false"></uni-easyinput>
+              <text class="label section-title">地址：{{partyAAddress}}</text>
             </view>
             <view class="detail-field">
-              <text class="label section-title">税号：</text>
-              <uni-easyinput placeholder="税号" v-model="partyATaxId" :clearable="false"></uni-easyinput>
+              <text class="label section-title">税号：{{partyATaxId}}</text>
             </view>
             <view class="detail-field">
-              <text class="label section-title">开户行：</text>
-              <uni-easyinput placeholder="开户行" v-model="partyABank" :clearable="false"></uni-easyinput>
+              <text class="label section-title">开户行：{{partyABank}}</text>
             </view>
             <view class="detail-field">
-              <text class="label section-title">账号：</text>
-              <uni-easyinput placeholder="账号" v-model="partyAAccount" :clearable="false"></uni-easyinput>
+              <text class="label section-title">账号：{{partyAAccount}}</text>
             </view>
             <view class="detail-field">
-              <text class="label section-title">电话：</text>
-              <uni-easyinput placeholder="电话" v-model="partyAPhone" :clearable="false"></uni-easyinput>
+              <text class="label section-title">电话：{{partyAPhone}}</text>
             </view>
             <view class="detail-field">
-              <text class="label section-title">签约代表：</text>
-              <uni-easyinput placeholder="甲方签约代表" v-model="partyARepresentative" :clearable="false"></uni-easyinput>
+              <text class="label section-title">签约代表：{{partyARepresentative}}</text>
             </view>
-            <view class="detail-field section-title">
-              <text class="label">签约日期：</text>
-              <uni-datetime-picker type="date" placeholder="签约日期" v-model="partyAContractDate" :clearable="false"></uni-datetime-picker>
-            </view>
+			<view class="detail-field">
+			  <text class="label section-title">甲方签约日期：{{partyAContractDate}}</text>
+			</view>
           </view>
         </view>
 
@@ -363,8 +379,20 @@
 	const partyAPhone = ref(null)
 	//甲方签约代表
 	const partyARepresentative = ref(null)
+	//甲方负责人
+	const partyAOwner = ref(null)
+	//甲方负责人电话
+	const partyAOwnerPhone = ref(null)
 	//甲方签约日期
 	const partyAContractDate = ref(null)
+	//活动方式-购进
+	const partyAPurchase = ref(null)
+	//活动方式-促销
+	const partyAOffer = ref(null)
+	//活动方式-人员奖励
+	const partyASalesTeamBonus = ref(null)
+	//活动方式补差
+	const partyAAdJustMent = ref(null)
 	//乙方签约代表
 	const partyBRepresentative = ref(null)
 	//乙方签约日期
@@ -376,7 +404,7 @@
 	//业务奖励
 	const businessReward = ref(null)
 	//库存数量
-	const inventoryQuantity = ref(null)
+	const inventoryQuantity = ref(0)
 	//购进单位
 	const purchaseUnit = ref(null)
 	//返现方式
@@ -512,7 +540,6 @@
 			partyAAccount.value = result.account
 			partyATaxId.value = result.taxNumber
 			partyAPhone.value = result.rebateUnitPhone
-			partyARepresentative.value = result.signatory
 			partyABank.value = result.openingBank
 		}
 		if (res.code === 500) {
@@ -704,115 +731,25 @@
 		if (totalPurchaseAmount.value == null) {
 			totalPurchaseAmount.value == 0
 		}
-				
-		// if (purchasePolicy.value == null || purchasePolicy.value == '') {
-		// 	showToast({'title': '请填写购进政策!'})
-		// 	return
-		// }
-		
-		// if (terminalPolicy.value == null || terminalPolicy.value == '') {
-		// 	showToast({'title': '请填写终端政策!'})
-		// 	return
-		// }
-		
-		if (businessReward.value == null || businessReward.value == '') {
-			showToast({'title': '请填写业务奖励!'})
-			return
-		}
 		
 		if (inventoryQuantity.value == null) {
 			inventoryQuantity.value == 0
 		}
-		
-		if (purchaseUnit.value == null || purchaseUnit.value == '') {
-			showToast({'title': '请填写购进单位!'})
-			return
-		}
-		
-		// if (showData1other.value == null || showData1other.value == '') {
-		// 	showToast({'title': '请填写返利单位'})
-		// 	return
-		// }
-		
-		if (commitmentPaymentDate.value == null || commitmentPaymentDate.value == '') {
-			showToast({'title': '请选择承诺支付日期!'})
-			return
-		}
-		
-		
-		if (policyExecutionMethod.value.length === 0) {
-			showToast({'title': '请选择政策执行方式'})
-			return
-		}
-		
-		if (policyType.value.length === 0) {
-			showToast({'title': '请选择政策类型'})
-			return
-		}
-		
-		if (activityStartDate.value == null || activityStartDate.value == '') {
-			showToast({'title': '请选择活动起始时间'})
-			return
-		}
-		
-		if (activityEndDate.value == null || activityEndDate.value == '') {
-			showToast({'title': '请选择活动结束时间'})
-			return
-		}
-		
-		if (partyAAddress.value == null || partyAAddress.value == '') {
-			showToast({'title': '请输入甲方地址'})
-			return
-		}
-		
-		if (partyATaxId.value == null || partyATaxId.value == '') {
-			showToast({'title': '请输入甲方税号'})
-			return
-		}
-		
-		if (partyABank.value == null || partyABank.value == '') {
-			showToast({'title': '请输入甲方开户行'})
-			return
-		}
-		
-		if (partyAAccount.value == null || partyAAccount.value == '') {
-			showToast({'title': '请输入甲方账号'})
-			return
-		}
-		
-		if (partyAPhone.value == null || partyAPhone.value == '') {
-			showToast({'title': '请输入甲方电话'})
-			return
-		}
-		
-		if (partyARepresentative.value == null || partyARepresentative.value == '') {
-			showToast({'title': '请输入甲方签约代表'})
-			return
-		}
-		
-		
-		if (partyAContractDate.value == null || partyAContractDate.value == '') {
-			showToast({'title': '请输入甲方签约时间'})
-			return
-		}
-		
-		if (partyBRepresentative.value == null || partyBRepresentative.value == '') {
-			showToast({'title': '请输入乙方签约代表'})
-			return
-		}
-		
-		
-		if (partyBContractDate.value == null || partyBContractDate.value == '') {
-			showToast({'title': '请输入乙方签约时间'})
-			return
-		}
-		
-		if (submitter.value == null || submitter.value == '') {
-			showToast({'title': '请选择采购员'})
-			return
-		}
 				
+		if (partyARepresentative.value == null || partyARepresentative.value == '') {
+			showToast({'title': '请输入甲方代表'})
+			return
+		}
 		
+		if (partyAOwner.value == null || partyAOwner.value == '') {
+			showToast({'title': '请输入甲方负责人'})
+			return
+		}
+		
+		if (partyAOwnerPhone.value == null || partyAOwnerPhone.value == '') {
+			showToast({'title': '请输入负责人电话'})
+			return
+		}
 		
 		uni.showModal({
 			content:'是否提交数据？',
@@ -852,8 +789,16 @@
 				partyAPhone: partyAPhone.value,
 				partyARepresentative: partyARepresentative.value,
 				partyAContractDate: partyAContractDate.value,
+				partyAAdJustMent: partyAAdJustMent.value,
+				partyAOffer: partyAOffer.value,
+				partyAPurchase: partyAPurchase.value,
+				partyASalesTeamBonus: partyASalesTeamBonus.value,
+				partyAOwner: partyAOwner.value,
+				partyAOwnerPhone: partyAOwnerPhone.value,
+				
 				partyBRepresentative: partyBRepresentative.value,
 				partyBContractDate: partyBContractDate.value,
+				
 				totalPurchaseAmount: totalPurchaseAmount.value,
 				purchasePolicy: purchasePolicy.value,
 				terminalPolicy: terminalPolicy.value,

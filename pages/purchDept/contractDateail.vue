@@ -26,10 +26,29 @@
 			  <text class="label">签约代表：</text>
 			  <uni-easyinput v-model="partyARepresentative"></uni-easyinput>
           </view>
+		  
+		  <view class="info-item" v-if="!isEdit1"><text class="label">负责人：</text>{{ partyAOwner }}</view>
+		  <view class="info-item" v-if="isEdit1">
+			  <text class="label">负责人：</text>
+			  <uni-easyinput v-model="partyAOwner"></uni-easyinput>
+		  </view>
+		  
+		  <view class="info-item" v-if="!isEdit1"><text class="label">负责人电话：</text>{{ partyAOwnerPhone }}</view>
+		  <view class="info-item" v-if="isEdit1">
+		  	  <text class="label">负责人电话：</text>
+		  	  <uni-easyinput v-model="partyAOwnerPhone"></uni-easyinput>
+		  </view>
+		  
           <view class="info-item" v-if="!isEdit1"><text class="label">签约时间：</text>{{ partyAContractDate }}</view>
           <view class="info-item" v-if="isEdit1">
           	  <text class="label">签约时间：</text>
-          	  <uni-easyinput v-model="partyAContractDate"></uni-easyinput>
+			  <uni-datetime-picker 
+			  type="date" 
+			  v-model="partyAContractDate" 
+			  :placeholder="partyAContractDate" 
+			  @show="showtimes" 
+			  @change = "closetimes" 
+			  @maskClick = "closetimes"></uni-datetime-picker>
           </view>
         </view>
 		
@@ -49,7 +68,7 @@
 		  <view class="info-item" v-if="!isEdit1"><text class="label">签约时间：</text>{{ partyBContractDate }}</view>
 		  <view class="info-item" v-if="isEdit1">
 		  	  <text class="label">签约时间：</text>
-		  	  <uni-easyinput v-model="partyBContractDate"></uni-easyinput>
+		  	  <uni-datetime-picker type="date" v-model="partyBContractDate" :placeholder="partyBContractDate" @show="showtimes" @change = "closetimes" @maskClick = "closetimes"></uni-datetime-picker>
 		  </view>
         </view>
       </view>
@@ -121,7 +140,7 @@
     </view>
 
     <!-- 底部按钮区 -->
-    <view class="footer-btns">
+    <view class="footer-btns" v-if="!isSelectTime">
       <!-- 审核订单按钮 -->
       <view class="audit-btn" @click="handleAudit" v-if="isShowApproval">
         <text>审核订单</text>
@@ -161,6 +180,8 @@ const partyAAccount = ref(null)
 const partyAPhone = ref(null)
 const partyARepresentative = ref(null)
 const partyAContractDate = ref(null)
+const partyAOwner = ref(null)
+const partyAOwnerPhone = ref(null)
 
 const partyBName = ref(null)
 const partyBAddress = ref(null)
@@ -181,6 +202,7 @@ const isEdit1 = ref(false)
 const isEdit2 = ref(false)
 const isEdit3 = ref(false)
 const isEdit3List = ref([])
+const isSelectTime = ref(false)
 
 onLoad(async(opt) => {
 	fm.value = opt.fromNumber
@@ -232,6 +254,14 @@ const cliCopy = () => {
 	})
 }
 
+const showtimes =() => {
+	isSelectTime.value = true
+}
+
+const closetimes = () => {
+	isSelectTime.value = false
+}
+
 const editDetail1 = async (index) => {
 	if (index !== 2) {
 		isEdit1.value = !isEdit1.value
@@ -239,6 +269,14 @@ const editDetail1 = async (index) => {
 			await startup()
 		}
 		return;
+	}
+	if (partyAOwner.value === '' || partyAOwner.value === null) {
+		showToast({title: '请填写正确的负责人'})
+		return
+	}
+	if (partyAOwnerPhone.value === '' || partyAOwnerPhone.value === null) {
+		showToast({title: '请填写正确的负责人电话'})
+		return
 	}
 	const res = await showModal({content: '确定提交吗？'})
 	if (res) {
@@ -248,6 +286,8 @@ const editDetail1 = async (index) => {
 			partyAContractDate: partyAContractDate.value,
 			partyBRepresentative: partyBRepresentative.value,
 			partyBContractDate: partyBContractDate.value,
+			partyAOwner: partyAOwner.value,
+			partyAOwnerPhone: partyAOwnerPhone.value,
 			fm: fm.value
 		})
 		if (_res.code === 200) {
@@ -272,18 +312,22 @@ const editDetail2 = async (index) => {
 			if (res.confirm) {
 				const _res = await requestFast.post('/public/store/view/mod/editContractOverview', {
 					inventoryQuantity: contractSummary.value[0].value,
-					purchasePolicy: contractSummary.value[1].value,
-					terminalPolicy: contractSummary.value[2].value,
-					businessReward: contractSummary.value[3].value,
-					purchaseUnit: contractSummary.value[4].value,
-					rebateMethod: contractSummary.value[5].value,
-					rebateForm: contractSummary.value[6].value,
-					commitmentPaymentDate: contractSummary.value[7].value,
-					policyExecutionMethod: contractSummary.value[8].value,
-					policyType: contractSummary.value[9].value,
-					activityStartDate: contractSummary.value[10].value,
-					activityEndDate: contractSummary.value[11].value,
-					totalPurchaseAmount: contractSummary.value[12].value,
+					partyAPurchase: contractSummary.value[1].value,
+					partyAOffer: contractSummary.value[2].value,
+					partyASalesTeamBonus: contractSummary.value[3].value,
+					partyAAdJustMent: contractSummary.value[4].value,
+					purchasePolicy: contractSummary.value[5].value,
+					terminalPolicy: contractSummary.value[6].value,
+					businessReward: contractSummary.value[7].value,
+					purchaseUnit: contractSummary.value[8].value,
+					rebateMethod: contractSummary.value[9].value,
+					rebateForm: contractSummary.value[10].value,
+					commitmentPaymentDate: contractSummary.value[11].value,
+					policyExecutionMethod: contractSummary.value[12].value,
+					policyType: contractSummary.value[13].value,
+					activityStartDate: contractSummary.value[14].value,
+					activityEndDate: contractSummary.value[15].value,
+					totalPurchaseAmount: contractSummary.value[16].value,
 					fm: fm.value
 				})
 				if (_res.code === 200) {
@@ -391,6 +435,8 @@ const detail = async(fromNumber) => {
 	partyAPhone.value = res.partyAPhone
 	partyARepresentative.value = res.partyARepresentative
 	partyAContractDate.value = res.partyAContractDate
+	partyAOwner.value = res.partyAOwner
+	partyAOwnerPhone.value = res.partyAOwnerPhone
 	
 	partyBName.value = res.partyBName
 	partyBAddress.value = res.partyBAddress
@@ -405,6 +451,10 @@ const detail = async(fromNumber) => {
 	
 	contractSummary.value = []
 	contractSummary.value.push({ label: '库存数量', value: res.inventoryQuantity })
+	contractSummary.value.push({ label: '购进', value: res.partyAPurchase })
+	contractSummary.value.push({ label: '促销', value: res.partyAOffer })
+	contractSummary.value.push({ label: '人员奖励', value: res.partyASalesTeamBonus })
+	contractSummary.value.push({ label: '补差', value: res.partyAAdJustMent })
 	contractSummary.value.push({ label: '购进政策', value: res.purchasePolicy})
 	contractSummary.value.push({ label: '终端政策', value: res.terminalPolicy })
 	contractSummary.value.push({ label: '业务奖励', value: res.businessReward})
