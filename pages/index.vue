@@ -2,8 +2,8 @@
   <view class="container">
     <!-- 顶部公司信息 - 缩小版 -->
     <view class="header" :style="{background: 'linear-gradient(to right, #FFC46B, #FFD699)'}">
-      <image class="logo" src="/static/logo.png" mode="aspectFit"></image>
-      <text class="company-name">济群药业有限公司</text>
+      <image class="logo" src="https://zy.gdjqyy.cn:8022/static/logo-index.png" mode="aspectFit"></image>
+      <!-- <text class="company-name">济群药业有限公司</text> -->
 	  <text class="welcome" @click="userMenu">{{userName}} {{getCurrentTime()}}</text>
     </view>
     
@@ -258,8 +258,8 @@ onShow(async() => {
 }
 
 .logo {
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 90px;
   margin-bottom: 5px;
 }
 

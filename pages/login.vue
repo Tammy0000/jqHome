@@ -58,7 +58,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import requestFast from '@/utils/requestFast';
 // 静态资源路径
 const bgVideoPath = ref('/static/login-bg.mp4') // 请替换为您的视频路径
-const logoPath = ref('/static/logo.png') // 请替换为您的Logo路径
+const logoPath = ref('https://zy.gdjqyy.cn:8022/static/logo.png') // 请替换为您的Logo路径
 
 // 表单数据
 const form = reactive({

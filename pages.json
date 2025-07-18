@@ -1,10 +1,17 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path" : "pages/welcome",
+			"style" : 
+			{
+				"navigationBarTitleText" : "广东济群药业"
+			}
+		},
+		{
 			"path" : "pages/index",
 			"style" : 
 			{
-				"navigationBarTitleText": "广东济群药业有限公司"
+				"navigationBarTitleText": "主页"
 			}
 		},
 		{

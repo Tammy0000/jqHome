@@ -49,6 +49,25 @@
         <text class="section-title">甲，乙双方本着互惠互利的原则，并结合医药行业实际情况，达成一下协议:</text>
       </view>
     </view>
+	
+	<view class="section policy-section">
+	  <text class="section-title">政策类型：</text>
+	  <uni-data-checkbox :localdata="range2" @change="policyTypecb" multiple></uni-data-checkbox>
+	  <view v-if="showData2" class="conditional-field">
+	    <uni-easyinput type="textarea" placeholder="请输入政策类型" v-model="showData2other" :clearable="false"></uni-easyinput>
+	  </view>
+	</view>
+	
+	<!-- 政策部分 2-11 -->
+	<view class="section policy-section" v-if="showPurchasePolicy">
+	  <text class="section-title">购进政策：</text>
+	  <uni-easyinput type="textarea" placeholder="请输入购进政策" v-model="purchasePolicy" :clearable="false"></uni-easyinput>
+	</view>
+	
+	<view class="section policy-section" v-if="showTerminalPolicy">
+	  <text class="section-title">终端政策：</text>
+	  <uni-easyinput type="textarea" placeholder="请输入终端政策" v-model="terminalPolicy" :clearable="false"></uni-easyinput>
+	</view>
 
     <view class="section products-section">
       <text class="section-title">药品名称，规则，单位，数量，单价，金额</text>
@@ -136,6 +155,39 @@
                   placeholder-style="color: #aaa; font-size: 26rpx"
                 />
               </view>
+			  
+			  <view class="field">
+			    <text class="label">购进</text>
+			    <uni-easyinput
+			      v-model="item.purchase"
+			      placeholder="请输入购进政策"
+			      :inputBorder="false"
+			      :styles="inputStyle"
+			      placeholder-style="color: #aaa; font-size: 26rpx"
+			    />
+			  </view>
+			  
+			  <view class="field">
+			    <text class="label">促销</text>
+			    <uni-easyinput
+			      v-model="item.offer"
+			      placeholder="请输入促销政策"
+			      :inputBorder="false"
+			      :styles="inputStyle"
+			      placeholder-style="color: #aaa; font-size: 26rpx"
+			    />
+			  </view>
+			  
+			  <view class="field">
+			    <text class="label">人员奖励</text>
+			    <uni-easyinput
+			      v-model="item.salesTeamBonus"
+			      placeholder="请输入人员奖励政策"
+			      :inputBorder="false"
+			      :styles="inputStyle"
+			      placeholder-style="color: #aaa; font-size: 26rpx"
+			    />
+			  </view>
       
               <!-- 补差/盒 -->
               <view class="field">
@@ -154,6 +206,7 @@
               <view class="field">
                 <text class="label">备注</text>
                 <uni-easyinput
+				  type="textarea"
                   v-model="item.remarks"
                   placeholder="请输入备注"
                   :inputBorder="false"
@@ -171,54 +224,29 @@
 
     </view>
 	
-	<view class="section policy-section">
-	  <text class="section-title">政策类型：</text>
-	  <uni-data-checkbox :localdata="range2" @change="policyTypecb" multiple></uni-data-checkbox>
-	  <view v-if="showData2" class="conditional-field">
-	    <uni-easyinput type="textarea" placeholder="请输入政策类型" v-model="showData2other" :clearable="false"></uni-easyinput>
-	  </view>
-	</view>
 	
-    <!-- 政策部分 2-11 -->
-    <view class="section policy-section" v-if="showPurchasePolicy">
-      <text class="section-title">购进政策：</text>
-      <uni-easyinput type="textarea" placeholder="请输入购进政策" v-model="purchasePolicy" :clearable="false"></uni-easyinput>
-    </view>
+	<view class="section policy-section">
+	  <text class="section-title">活动内容：</text>
+	  <uni-easyinput type="textarea" placeholder="请输入活动内容" v-model="eventContent" :clearable="false"></uni-easyinput>
+	</view>
 
-    <view class="section policy-section" v-if="showTerminalPolicy">
-      <text class="section-title">终端政策：</text>
-      <uni-easyinput type="textarea" placeholder="请输入终端政策" v-model="terminalPolicy" :clearable="false"></uni-easyinput>
-    </view>
-
-    <view class="section policy-section">
+    <!-- <view class="section policy-section">
       <text class="section-title">业务奖励：</text>
       <uni-easyinput type="textarea" placeholder="请输入业务奖励" v-model="businessReward" :clearable="false"></uni-easyinput>
-    </view>
-
-	<view class="section policy-section">
-	  <text class="section-title">活动方式：</text>
-	  <view>
-		  <text style="color: #1a73e8; font-size: 32rpx; ">购进</text>
-		  <uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入购进" v-model="partyAPurchase" :clearable="false"></uni-easyinput>
-	  </view>
-	  <view>
-	  	<text style="color: #1a73e8; font-size: 32rpx; ">促销</text>
-	  	<uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入促销" v-model="partyAOffer" :clearable="false"></uni-easyinput>
-	  </view>
-	  <view>
-	  	<text style="color: #1a73e8; font-size: 32rpx; ">人员奖励</text>
-	  	<uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入人员奖励" v-model="partyASalesTeamBonus" :clearable="false"></uni-easyinput>
-	  </view>
-	  <view>
-	  	<text style="color: #1a73e8; font-size: 32rpx; ">补差</text>
-	  	<uni-easyinput style="margin-top: 25rpx;" type="textarea" placeholder="请输入补差" v-model="partyAAdJustMent" :clearable="false"></uni-easyinput>
-	  </view>
-	</view>
+    </view> -->
 
     <view class="section policy-section">
       <text class="section-title">购进单位：</text>
       <uni-easyinput type="textarea" placeholder="请输入一个或多个购进单位，以逗号分隔" v-model="purchaseUnit" :clearable="false"></uni-easyinput>
     </view>
+	
+	<view class="section policy-section">
+	  <text class="section-title">政策核算依据：</text>
+	  <uni-data-checkbox :localdata="range1" @change="policyExecutionMethodcb" multiple></uni-data-checkbox>
+	  <view v-if="showData" class="conditional-field">
+	    <uni-easyinput type="textarea" placeholder="请输入政策核算依据" v-model="showDataother"></uni-easyinput>
+	  </view>
+	</view>
 
     <view class="section policy-section">
       <text class="section-title">返利单位：</text>
@@ -230,13 +258,7 @@
       <uni-datetime-picker placeholder="选择支付日期" type="date" v-model="commitmentPaymentDate" :clearable="false"></uni-datetime-picker>
     </view>
 
-    <view class="section policy-section">
-      <text class="section-title">政策执行方式：</text>
-      <uni-data-checkbox :localdata="range1" @change="policyExecutionMethodcb" multiple></uni-data-checkbox>
-      <view v-if="showData" class="conditional-field">
-        <uni-easyinput type="textarea" placeholder="请输入政策执行方式" v-model="showDataother"></uni-easyinput>
-      </view>
-    </view>
+    
 	
 	<view class="section policy-section">
 	  <text class="section-title">返利形式：</text>
@@ -393,6 +415,8 @@
 	const partyASalesTeamBonus = ref(null)
 	//活动方式补差
 	const partyAAdJustMent = ref(null)
+	//活动内容
+	const eventContent = ref(null)
 	//乙方签约代表
 	const partyBRepresentative = ref(null)
 	//乙方签约日期
@@ -506,6 +530,9 @@
 		lists.value[index].supplementDiff = ''
 		lists.value[index].unit = ''
 		lists.value[index].quantity = null
+		lists.value[index].purchase = null
+		lists.value[index].offer = null
+		lists.value[index].salesTeamBonus = null
 	}
 	
 	//重置甲方信息
@@ -564,7 +591,7 @@
 	}
 	
 	const changelistadd = () => {
-		lists.value.push({productId: '', drugName: '', manufacturer: '', specification: '', unit: '', quantity: null, remarks: '', supplementDiff: null})
+		lists.value.push({productId: '', drugName: '', manufacturer: '', specification: '', unit: '', quantity: null, remarks: '', supplementDiff: null, salesTeamBonus: '', offer: '', purchase: ''})
 		showToast({title: '新增成功！向左滑动即可查看新增表单'})
 	}
 	
@@ -815,7 +842,8 @@
 				submitter: submitter.value,
 				submissionDateDetailList: lists.value,
 				filePath: filePath.value,
-				rebateForm: rebateTypeMethod.value.toString()
+				rebateForm: rebateTypeMethod.value.toString(),
+				eventContent: eventContent.value
 			}
 			
 			//提交数据上去
@@ -836,67 +864,6 @@
 		}
 	}
 	
-	function numberToChinese(num) {
-	    // 中文数字和单位的映射
-	    const chineseNumbers = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
-	    const chineseUnits = ['', '拾', '佰', '仟', '万', '亿'];
-	
-	    // 特殊情况：0
-	        if (num === 0) {
-	            return chineseNumbers[0];
-	        }
-	    
-	        // 将整数部分和小数部分分开
-	        let integerPart = Math.floor(num); // 整数部分
-	        let decimalPart = num - integerPart; // 小数部分
-	        let decimalStr = decimalPart.toFixed(2).split('.')[1]; // 保留两位小数
-	    
-	        let integerResult = '';
-	        let unitIndex = 0;  // 单位索引
-	        let zeroFlag = false;  // 用来标记是否需要加“零”
-	    
-	        // 处理整数部分
-	        while (integerPart > 0) {
-	            let digit = integerPart % 10;  // 取出当前位的数字
-	            if (digit !== 0) {
-	                integerResult = chineseNumbers[digit] + chineseUnits[unitIndex] + integerResult;
-	                zeroFlag = false;
-	            } else {
-	                if (!zeroFlag) {
-	                    integerResult = chineseNumbers[0] + integerResult;  // 添加“零”
-	                    zeroFlag = true;
-	                }
-	            }
-	    
-	            integerPart = Math.floor(integerPart / 10);  // 去掉当前的个位数字
-	            unitIndex++;
-	        }
-	    
-	        // 特殊情况：十开头，如："一十" -> "十"
-	        if (integerResult[0] === '一' && integerResult[1] === '十') {
-	            integerResult = integerResult.substring(1);
-	        }
-	    
-	        // 处理小数部分（角和分）
-	        let decimalResult = '';
-	        let jiao = parseInt(decimalStr[0]); // 获取角位
-	        let fen = parseInt(decimalStr[1]); // 获取分位
-	    
-	        if (jiao !== 0) {
-	            decimalResult += chineseNumbers[jiao] + '角';
-	        }
-	    
-	        if (fen !== 0) {
-	            decimalResult += chineseNumbers[fen] + '分';
-	        }
-	    
-	        // 拼接整数部分和小数部分
-	        if (decimalResult) {
-	            return integerResult + '点' + decimalResult;
-	        }
-	    
-	        return integerResult;
-	}
 </script>
 
 <style scoped>

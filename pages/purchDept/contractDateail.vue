@@ -90,7 +90,8 @@
             'highlight-date': isDate(item.value),
             'highlight-money': isMoney(item.value)
           }">{{ item.value }}</text>
-		  <uni-easyinput v-model="item.value" v-if="isEdit2 && item.label !== '合同编号' "></uni-easyinput>
+		  <uni-easyinput v-model="item.value" v-if="isEdit2 && item.label !== '合同编号' && item.label !== '活动内容' "></uni-easyinput>
+		  <uni-easyinput type="textarea" v-model="item.value" v-if="isEdit2 && item.label === '活动内容' "></uni-easyinput>
 		  <view style="margin-top: 20rpx; display: flex; width: 100%;">
 			  <button v-if="item.label === '合同编号'" size="mini" @click="cliCopy">复制合同编号</button>
 		  </view>
@@ -126,15 +127,35 @@
 			<text class="label">数量：</text>
 			<uni-easyinput type="number" v-model="order.quantity"></uni-easyinput>
 		</view>
+		
+		<view class="order-row" v-if="!isEdit3List[index]"><text class="label">购进：</text><text class="highlight-money">{{ order.purchase}}</text></view>
+		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+			<text class="label">购进：</text>
+			<uni-easyinput v-model="order.purchase"></uni-easyinput>
+		</view>
+		
+		<view class="order-row" v-if="!isEdit3List[index]"><text class="label">促销：</text><text class="highlight-money">{{ order.offer}}</text></view>
+		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+			<text class="label">促销：</text>
+			<uni-easyinput v-model="order.offer"></uni-easyinput>
+		</view>
+		
+		<view class="order-row" v-if="!isEdit3List[index]"><text class="label">人员奖励：</text><text class="highlight-money">{{ order.salesTeamBonus}}</text></view>
+		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+			<text class="label">人员奖励：</text>
+			<uni-easyinput v-model="order.salesTeamBonus"></uni-easyinput>
+		</view>
+		
         <view class="order-row" v-if="!isEdit3List[index]"><text class="label">补差：</text><text class="highlight-money">{{ order.supplementDiff}}</text></view>
 		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
 			<text class="label">补差：</text>
 			<uni-easyinput type="number" v-model="order.supplementDiff"></uni-easyinput>
 		</view>
+		
         <view class="order-row" v-if="!isEdit3List[index]"><text class="label">备注：</text>{{ order.remarks}}</view>
 		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
 			<text class="label">备注：</text>
-			<uni-easyinput v-model="order.remarks"></uni-easyinput>
+			<uni-easyinput type="textarea" v-model="order.remarks"></uni-easyinput>
 		</view>
       </view>
     </view>
@@ -182,6 +203,7 @@ const partyARepresentative = ref(null)
 const partyAContractDate = ref(null)
 const partyAOwner = ref(null)
 const partyAOwnerPhone = ref(null)
+const eventContent = ref(null)
 
 const partyBName = ref(null)
 const partyBAddress = ref(null)
@@ -215,27 +237,10 @@ const startup = async() => {
 	await findApprovalStatusByUserId(fm.value)
 	isEdit3List.value = []
 	for (var i = 0; i < orders.value.length; i++) {
-		//因为不能存储布尔类型。这里只能约定 0为false 1为true
 		isEdit3List.value.push(false)
 	}
 }
 
-const contractSummary1 = [
-  { label: '库存数量', value: '500盒' },
-  { label: '购进政策', value: '买五赠一' },
-  { label: '终端政策', value: '送展示柜' },
-  { label: '业务奖励', value: '季度返现' },
-  { label: '购进单位', value: '广东医药有限公司' },
-  { label: '返利单位', value: '转账' },
-  { label: '承诺支付日期', value: '2025-06-01' },
-  { label: '承诺支付截止日期', value: '2025-06-01' },
-  { label: '政策执行方式', value: '先执行后返现' },
-  { label: '政策类型', value: '常规促销' },
-  { label: '活动起始时间', value: '2025-06-01' },
-  { label: '活动结束时间', value: '2025-08-31' },
-  { label: '签约金额', value: '¥1,200,000' },
-  { label: '合同编号', value: 'jq' },
-]
 
 const contractSummary = ref([])
 const orders = ref([])
@@ -312,22 +317,19 @@ const editDetail2 = async (index) => {
 			if (res.confirm) {
 				const _res = await requestFast.post('/public/store/view/mod/editContractOverview', {
 					inventoryQuantity: contractSummary.value[0].value,
-					partyAPurchase: contractSummary.value[1].value,
-					partyAOffer: contractSummary.value[2].value,
-					partyASalesTeamBonus: contractSummary.value[3].value,
-					partyAAdJustMent: contractSummary.value[4].value,
-					purchasePolicy: contractSummary.value[5].value,
-					terminalPolicy: contractSummary.value[6].value,
-					businessReward: contractSummary.value[7].value,
-					purchaseUnit: contractSummary.value[8].value,
-					rebateMethod: contractSummary.value[9].value,
-					rebateForm: contractSummary.value[10].value,
-					commitmentPaymentDate: contractSummary.value[11].value,
-					policyExecutionMethod: contractSummary.value[12].value,
-					policyType: contractSummary.value[13].value,
-					activityStartDate: contractSummary.value[14].value,
-					activityEndDate: contractSummary.value[15].value,
-					totalPurchaseAmount: contractSummary.value[16].value,
+					purchasePolicy: contractSummary.value[1].value,
+					terminalPolicy: contractSummary.value[2].value,
+					businessReward: contractSummary.value[3].value,
+					purchaseUnit: contractSummary.value[4].value,
+					rebateMethod: contractSummary.value[5].value,
+					rebateForm: contractSummary.value[6].value,
+					commitmentPaymentDate: contractSummary.value[7].value,
+					policyExecutionMethod: contractSummary.value[8].value,
+					policyType: contractSummary.value[9].value,
+					activityStartDate: contractSummary.value[10].value,
+					activityEndDate: contractSummary.value[11].value,
+					totalPurchaseAmount: contractSummary.value[12].value,
+					eventContent: contractSummary.value[13].value,
 					fm: fm.value
 				})
 				if (_res.code === 200) {
@@ -386,7 +388,10 @@ const editDetail3 = async (index1, index2) => {
 		specification: orders.value[index2].specification,
 		supplementDiff: orders.value[index2].supplementDiff,
 		remarks: orders.value[index2].remarks,
-		manufacturer: orders.value[index2].manufacturer
+		manufacturer: orders.value[index2].manufacturer,
+		purchase: orders.value[index2].purchase,
+		offer: orders.value[index2].offer,
+		salesTeamBonus: orders.value[index2].salesTeamBonus,
 	})
 	if (res.code !== 200) {
 		showToast({title:'提交失败，请反馈给管理员'})
@@ -448,13 +453,10 @@ const detail = async(fromNumber) => {
 	partyBContractDate.value = res.partyBContractDate
 	auditStatus.value = res.auditStatus
 	isKeyProject.value = res.isKeyProject
+	eventContent.value = res.eventContent
 	
 	contractSummary.value = []
 	contractSummary.value.push({ label: '库存数量', value: res.inventoryQuantity })
-	contractSummary.value.push({ label: '购进', value: res.partyAPurchase })
-	contractSummary.value.push({ label: '促销', value: res.partyAOffer })
-	contractSummary.value.push({ label: '人员奖励', value: res.partyASalesTeamBonus })
-	contractSummary.value.push({ label: '补差', value: res.partyAAdJustMent })
 	contractSummary.value.push({ label: '购进政策', value: res.purchasePolicy})
 	contractSummary.value.push({ label: '终端政策', value: res.terminalPolicy })
 	contractSummary.value.push({ label: '业务奖励', value: res.businessReward})
@@ -462,11 +464,12 @@ const detail = async(fromNumber) => {
 	contractSummary.value.push({ label: '返利单位', value: res.rebateMethod })
 	contractSummary.value.push({ label: '返利形式', value: res.rebateForm })
 	contractSummary.value.push({ label: '承诺支付日期', value: res.commitmentPaymentDate })
-	contractSummary.value.push({ label: '政策执行方式', value: res.policyExecutionMethod })
+	contractSummary.value.push({ label: '政策核算依据', value: res.policyExecutionMethod })
 	contractSummary.value.push({ label: '政策类型', value: res.policyType })
 	contractSummary.value.push({ label: '活动起始时间', value: res.activityStartDate })
 	contractSummary.value.push({ label: '活动结束时间', value: res.activityEndDate })
 	contractSummary.value.push({ label: '签约金额', value: res.totalPurchaseAmount })
+	contractSummary.value.push({ label: '活动内容', value: res.eventContent })
 	contractSummary.value.push({ label: '合同编号', value: fm.value })
 }
 
