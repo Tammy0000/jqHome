@@ -145,7 +145,7 @@ const logout = async () => {
 						title:'用户退出成功!',
 						success() {
 							uni.reLaunch({
-								url:'/pages/index'
+								url:'/pages/welcome'
 							})
 						}
 					})

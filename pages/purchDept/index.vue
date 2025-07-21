@@ -8,7 +8,7 @@
 	  <button class="search-button" size="mini" @click="NaviQuery">查询合同</button>
 	</view>
 	<view style="margin-bottom: 15rpx;">
-		<text style="color: red; font-size: 15rpx;">红色字段为必填，其余均为选填</text>
+		<text style="color: red; font-size: 25rpx;">红色字段为必填，其余均为选填</text>
 	</view>
     <view class="section parties-section">
       <view class="party-input">
@@ -30,14 +30,22 @@
 	    <text class="label" style="color: red;">甲方代表：</text>
 	    <uni-easyinput placeholder="请输入甲方代表" v-model="partyARepresentative" :clearable="false" ></uni-easyinput>
 	  </view>
+	  
+	  <view class="party-input">
+	    <text class="label" style="color: red;">代表电话：</text>
+	    <uni-easyinput placeholder="请输入甲方代表电话" v-model="partyARepresentativePhone" :clearable="false" ></uni-easyinput>
+	  </view>
+	  
 	  <view class="party-input">
 	    <text class="label" style="color: red;">甲方负责人：</text>
 	    <uni-easyinput placeholder="请输入甲方负责人" v-model="partyAOwner" :clearable="false" ></uni-easyinput>
 	  </view>
+	  
 	  <view class="party-input">
 	    <text class="label" style="color: red;">负责人电话：</text>
 	    <uni-easyinput placeholder="请输入甲方负责人电话" v-model="partyAOwnerPhone" :clearable="false" ></uni-easyinput>
 	  </view>
+	  
 	  <view class="party-input">
 	    <text class="label">签约日期：</text>
 	    <uni-datetime-picker type="date" placeholder="签约日期" v-model="partyAContractDate" :clearable="false"></uni-datetime-picker>
@@ -230,11 +238,6 @@
 	  <uni-easyinput type="textarea" placeholder="请输入活动内容" v-model="eventContent" :clearable="false"></uni-easyinput>
 	</view>
 
-    <!-- <view class="section policy-section">
-      <text class="section-title">业务奖励：</text>
-      <uni-easyinput type="textarea" placeholder="请输入业务奖励" v-model="businessReward" :clearable="false"></uni-easyinput>
-    </view> -->
-
     <view class="section policy-section">
       <text class="section-title">购进单位：</text>
       <uni-easyinput type="textarea" placeholder="请输入一个或多个购进单位，以逗号分隔" v-model="purchaseUnit" :clearable="false"></uni-easyinput>
@@ -286,18 +289,23 @@
           <view class="party-fields">
             <view class="detail-field">
               <text class="label section-title">地址：{{partyAAddress}}</text>
+			  <uni-easyinput class="section-title" v-model="partyAAddress" placeholder="请输入地址"></uni-easyinput>
             </view>
             <view class="detail-field">
               <text class="label section-title">税号：{{partyATaxId}}</text>
+			  <uni-easyinput class="section-title" v-model="partyATaxId" placeholder="请输入税号"></uni-easyinput>
             </view>
             <view class="detail-field">
               <text class="label section-title">开户行：{{partyABank}}</text>
+			  <uni-easyinput class="section-title" v-model="partyABank" placeholder="请输入开户行"></uni-easyinput>
             </view>
             <view class="detail-field">
               <text class="label section-title">账号：{{partyAAccount}}</text>
+			  <uni-easyinput class="section-title" v-model="partyAAccount" placeholder="请输入账号"></uni-easyinput>
             </view>
             <view class="detail-field">
-              <text class="label section-title">电话：{{partyAPhone}}</text>
+              <text class="label section-title">公司电话：{{partyAPhone}}</text>
+			  <uni-easyinput class="section-title" v-model="partyAPhone" placeholder="请输入公司电话"></uni-easyinput>
             </view>
             <view class="detail-field">
               <text class="label section-title">签约代表：{{partyARepresentative}}</text>
@@ -401,6 +409,8 @@
 	const partyAPhone = ref(null)
 	//甲方签约代表
 	const partyARepresentative = ref(null)
+	//甲方签约代表电话
+	const partyARepresentativePhone = ref(null)
 	//甲方负责人
 	const partyAOwner = ref(null)
 	//甲方负责人电话
@@ -768,6 +778,11 @@
 			return
 		}
 		
+		if (partyARepresentativePhone.value == null || partyARepresentativePhone.value == '') {
+			showToast({'title': '请输入甲方代表电话'})
+			return
+		}
+		
 		if (partyAOwner.value == null || partyAOwner.value == '') {
 			showToast({'title': '请输入甲方负责人'})
 			return
@@ -822,6 +837,7 @@
 				partyASalesTeamBonus: partyASalesTeamBonus.value,
 				partyAOwner: partyAOwner.value,
 				partyAOwnerPhone: partyAOwnerPhone.value,
+				partyARepresentativePhone: partyARepresentativePhone.value,
 				
 				partyBRepresentative: partyBRepresentative.value,
 				partyBContractDate: partyBContractDate.value,
@@ -849,9 +865,15 @@
 			//提交数据上去
 			const res = await requestFast.post('/public/store/view/modules', data)
 			if (res.code === 200) {
-				uni.showToast({
-					icon:'success',
-					title:'数据提交完成！',
+				uni.showModal({
+					showCancel:false,
+					content:`提交成功!\n您的合同编号是 ${res.fm}\n点击确定复制到您的剪切板`,
+					success:(_res) => {
+						//复制到剪贴板去
+						uni.setClipboardData({
+							data:res.fm,
+						})
+					}
 				})
 				//刷新当前页面
 				refreshPage()

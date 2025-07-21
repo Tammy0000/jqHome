@@ -47,6 +47,7 @@
         </view>
         
         <button class="login-btn" @click="handleLogin" :loading="loading">登 录</button>
+        <button class="login-btn" @click="handleLoginExit">退 出</button>
       </view>
     </view>
   </view>
@@ -54,7 +55,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import requestFast from '@/utils/requestFast';
 // 静态资源路径
 const bgVideoPath = ref('/static/login-bg.mp4') // 请替换为您的视频路径
@@ -97,8 +98,8 @@ const handleLogin = async () => {
 			icon:'success',
 			title:res.msg,
 			success() {
-				uni.navigateBack({
-					delta:1
+				uni.reLaunch({
+					url:'/pages/index'
 				})
 			}
 		})
@@ -111,6 +112,12 @@ const handleLogin = async () => {
 	})
 	loading.value = false
   }
+}
+
+const handleLoginExit = () => {
+	uni.navigateBack({
+		delta:1
+	})
 }
 
 

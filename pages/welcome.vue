@@ -14,14 +14,27 @@
 </template>
 
 <script setup>
+	import {ref} from 'vue'
+	import {onShow } from '@dcloudio/uni-app'
+	import requestFast from '../utils/requestFast'
+	const isCheck = ref(false)
+	
+	onShow(async() => {
+		const res = await requestFast.post('/public/store/view/mod/checkToken')
+		if (res.code === 200) {
+			isCheck.value = true
+		}
+	})
+	
+	
 	const navigateToSupplier = () => {
 		uni.redirectTo({
 			url:'/pages/purchDept/index'
 		})
 	}
 	const navigateToEnterprise = () => {
-		uni.redirectTo({
-			url:'/pages/index'
+		uni.navigateTo({
+			url: isCheck.value ? '/pages/index' : '/pages/login'
 		})
 	}
 </script>

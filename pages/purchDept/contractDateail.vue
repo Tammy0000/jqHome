@@ -21,11 +21,18 @@
 			  <text class="label">电话：</text>
 			  <uni-easyinput v-model="partyAPhone"></uni-easyinput>
 		  </view>
+		  
           <view class="info-item" v-if="!isEdit1"><text class="label">签约代表：</text>{{ partyARepresentative }}</view>
           <view class="info-item" v-if="isEdit1">
 			  <text class="label">签约代表：</text>
 			  <uni-easyinput v-model="partyARepresentative"></uni-easyinput>
           </view>
+		  
+		  <view class="info-item" v-if="!isEdit1"><text class="label">签约代表电话：</text>{{ partyARepresentativePhone }}</view>
+		  <view class="info-item" v-if="isEdit1">
+		  			  <text class="label">签约代表电话：</text>
+		  			  <uni-easyinput v-model="partyARepresentativePhone"></uni-easyinput>
+		  </view>
 		  
 		  <view class="info-item" v-if="!isEdit1"><text class="label">负责人：</text>{{ partyAOwner }}</view>
 		  <view class="info-item" v-if="isEdit1">
@@ -204,6 +211,7 @@ const partyAContractDate = ref(null)
 const partyAOwner = ref(null)
 const partyAOwnerPhone = ref(null)
 const eventContent = ref(null)
+const partyARepresentativePhone = ref(null)
 
 const partyBName = ref(null)
 const partyBAddress = ref(null)
@@ -293,6 +301,7 @@ const editDetail1 = async (index) => {
 			partyBContractDate: partyBContractDate.value,
 			partyAOwner: partyAOwner.value,
 			partyAOwnerPhone: partyAOwnerPhone.value,
+			partyARepresentativePhone: partyARepresentativePhone.value,
 			fm: fm.value
 		})
 		if (_res.code === 200) {
@@ -454,6 +463,7 @@ const detail = async(fromNumber) => {
 	auditStatus.value = res.auditStatus
 	isKeyProject.value = res.isKeyProject
 	eventContent.value = res.eventContent
+	partyARepresentativePhone.value = res.partyARepresentativePhone
 	
 	contractSummary.value = []
 	contractSummary.value.push({ label: '库存数量', value: res.inventoryQuantity })
