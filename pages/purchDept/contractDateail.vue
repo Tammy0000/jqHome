@@ -156,7 +156,7 @@
         <view class="order-row" v-if="!isEdit3List[index]"><text class="label">补差：</text><text class="highlight-money">{{ order.supplementDiff}}</text></view>
 		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
 			<text class="label">补差：</text>
-			<uni-easyinput type="number" v-model="order.supplementDiff"></uni-easyinput>
+			<uni-easyinput type="textarea" v-model="order.supplementDiff"></uni-easyinput>
 		</view>
 		
         <view class="order-row" v-if="!isEdit3List[index]"><text class="label">备注：</text>{{ order.remarks}}</view>
@@ -458,7 +458,7 @@ const detail = async(fromNumber) => {
 	partyBBank.value = res.partyBBank
 	partyBAccount.value = res.partyBAccount
 	partyBPhone.value = res.partyBPhone
-	partyBRepresentative.value = res.partyBRepresentative
+	partyBRepresentative.value = res.representative
 	partyBContractDate.value = res.partyBContractDate
 	auditStatus.value = res.auditStatus
 	isKeyProject.value = res.isKeyProject

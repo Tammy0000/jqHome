@@ -51,7 +51,7 @@
 	    <uni-datetime-picker type="date" placeholder="签约日期" v-model="partyAContractDate" :clearable="false"></uni-datetime-picker>
 	  </view>
       <view class="party-info">
-        <text class="section-title">乙方: 责任采购</text>
+        <text class="section-title">乙方: 广东济群药业有限公司</text>
       </view>
       <view class="agreement-text">
         <text class="section-title">甲，乙双方本着互惠互利的原则，并结合医药行业实际情况，达成一下协议:</text>
@@ -201,9 +201,9 @@
               <view class="field">
                 <text class="label">补差/盒</text>
                 <uni-easyinput
-                  type="number"
+                  type="textarea"
                   v-model="item.supplementDiff"
-                  placeholder="请输入金额"
+                  placeholder="请输入补差/盒"
                   :inputBorder="false"
                   :styles="inputStyle"
                   placeholder-style="color: #aaa; font-size: 26rpx"
