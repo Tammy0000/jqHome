@@ -4,7 +4,8 @@
     <view class="section">
       <view style="display: flex; width: 100%; align-items: center;">
       		  <view class="section-title" style="flex: 1;">甲乙双方信息</view>
-      		  <button v-if="!isEdit1" style="border: 1rpx solid blue; padding: 0 15rpx; color: blue;" size="mini" @click.stop="editDetail1(1)">编辑</button>
+      		  <button v-if="!isEdit1" style="border: 1rpx solid blue; padding: 0 15rpx; color: blue; margin-right: 15rpx;" size="mini" @click.stop="dw">下载</button>
+      		  <button v-if="!isEdit1 && isApproved" style="border: 1rpx solid blue; padding: 0 15rpx; color: blue;" size="mini" @click.stop="editDetail1(1)">编辑</button>
       		  <button v-if="isEdit1" style="border: 1rpx solid transparent; padding: 0 15rpx; color: green;" size="mini" @click.stop="editDetail1(2)">提交</button>
       		  <button v-if="isEdit1" style="border: 1rpx solid transparent; padding: 0 15rpx; color: blue; margin-left: 20rpx;" size="mini" @click.stop="editDetail1(3)">取消</button>
       </view>
@@ -72,6 +73,11 @@
 		  	  <text class="label">签约代表：</text>
 		  	  <uni-easyinput v-model="partyBRepresentative"></uni-easyinput>
 		  </view>
+		  <view class="info-item" v-if="!isEdit1"><text class="label">采购员：</text>{{ submitter }}</view>
+		  <view class="info-item" v-if="isEdit1">
+		  	  <text class="label">采购员：</text>
+		  	  <uni-easyinput v-model="submitter"></uni-easyinput>
+		  </view>
 		  <view class="info-item" v-if="!isEdit1"><text class="label">签约时间：</text>{{ partyBContractDate }}</view>
 		  <view class="info-item" v-if="isEdit1">
 		  	  <text class="label">签约时间：</text>
@@ -85,7 +91,7 @@
     <view class="section">
       <view style="display: flex; width: 100%; align-items: center;">
 		  <view class="section-title" style="flex: 1;">合同概要</view>
-		  <button v-if="!isEdit2" style="border: 1rpx solid blue; padding: 0 15rpx; color: blue;" size="mini" @click.stop="editDetail2(1)">编辑</button>
+		  <button v-if="!isEdit2 && isApproved" style="border: 1rpx solid blue; padding: 0 15rpx; color: blue;" size="mini" @click.stop="editDetail2(1)">编辑</button>
 		  <button v-if="isEdit2" style="border: 1rpx solid transparent; padding: 0 15rpx; color: green;" size="mini" @click.stop="editDetail2(2)">提交</button>
 		  <button v-if="isEdit2" style="border: 1rpx solid transparent; padding: 0 15rpx; color: blue; margin-left: 20rpx;" size="mini" @click.stop="editDetail2(3)">取消</button>
 	  </view>
@@ -117,7 +123,7 @@
 				<!-- 当子单只有一条的时候，不允许删除子单，避免出错。 -->
 				<button size="mini" v-if="isEdit3List[index] && orders.length > 1" @click.stop="editDetail3(4, index)">删除</button>
 				<button size="mini" v-if="isEdit3List[index]" @click.stop="editDetail3(3, index)">取消</button>
-				<button size="mini" v-if="!isEdit3List[index]" @click.stop="editDetail3(1, index)">编辑</button>
+				<button size="mini" v-if="!isEdit3List[index] && isApproved" @click.stop="editDetail3(1, index)">编辑</button>
 			</view>
 		</view>
         <view class="order-row" v-if="!isEdit3List[index]"><text class="label">药品ID：</text><text class="highlight-id">{{ order.productId }}</text></view>
@@ -156,7 +162,7 @@
         <view class="order-row" v-if="!isEdit3List[index]"><text class="label">补差：</text><text class="highlight-money">{{ order.supplementDiff}}</text></view>
 		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
 			<text class="label">补差：</text>
-			<uni-easyinput type="textarea" v-model="order.supplementDiff"></uni-easyinput>
+			<uni-easyinput type="number" v-model="order.supplementDiff"></uni-easyinput>
 		</view>
 		
         <view class="order-row" v-if="!isEdit3List[index]"><text class="label">备注：</text>{{ order.remarks}}</view>
@@ -175,8 +181,8 @@
       </view>
     
       <!-- 查看附件按钮 -->
-      <view class="attachment-btn" @click="showAttachment = true">
-        <text>查看合同附件</text>
+      <view class="attachment-btn" @click="uploadedFilePage">
+        <text>附件上传</text>
         <image src="/static/icon-preview.png" mode="aspectFit" class="preview-icon"></image>
       </view>
     </view>
@@ -196,6 +202,8 @@ import { ref, computed } from 'vue'
 import {onLoad} from '@dcloudio/uni-app'
 import requestFast from '@/utils/requestFast.js'
 import { API_BASE_URL_STATIC } from '@/utils/config'
+import { API_BASE_URL } from '../../utils/config'
+import { downloadFile } from '@/utils/downloadUtil.js'
 import { checkLogin } from '../../utils/auth'
 import { showModal } from '../../utils/showModal'
 import { showToast } from '../../utils/showToast'
@@ -221,6 +229,7 @@ const partyBAccount = ref(null)
 const partyBPhone = ref(null)
 const partyBRepresentative = ref(null)
 const partyBContractDate = ref(null)
+const submitter = ref(null)
 
 const isKeyProject = ref(false)
 const isShowApproval = ref(false)
@@ -233,6 +242,8 @@ const isEdit2 = ref(false)
 const isEdit3 = ref(false)
 const isEdit3List = ref([])
 const isSelectTime = ref(false)
+//是否审批，用于审批以后不可变再编辑
+const isApproved = ref(false)
 
 onLoad(async(opt) => {
 	fm.value = opt.fromNumber
@@ -242,6 +253,7 @@ onLoad(async(opt) => {
 //用于刷新整个页面
 const startup = async() => {
 	await detail(fm.value)
+	await checkApprovalStatus(fm.value)
 	await findApprovalStatusByUserId(fm.value)
 	isEdit3List.value = []
 	for (var i = 0; i < orders.value.length; i++) {
@@ -249,6 +261,16 @@ const startup = async() => {
 	}
 }
 
+const uploadedFilePage = () => {
+	uni.navigateTo({
+		url:'/pages/purchDept/ImageGallery?fm=' + fm.value
+	})
+}
+
+const dw = async() => {
+	var uri = API_BASE_URL + '/public/analysis/moudle/v3/' + fm.value
+	await downloadFile(uri, submitter.value + '_' + fm.value + '.xlsx')
+}
 
 const contractSummary = ref([])
 const orders = ref([])
@@ -302,6 +324,7 @@ const editDetail1 = async (index) => {
 			partyAOwner: partyAOwner.value,
 			partyAOwnerPhone: partyAOwnerPhone.value,
 			partyARepresentativePhone: partyARepresentativePhone.value,
+			submitter: submitter.value,
 			fm: fm.value
 		})
 		if (_res.code === 200) {
@@ -326,18 +349,18 @@ const editDetail2 = async (index) => {
 			if (res.confirm) {
 				const _res = await requestFast.post('/public/store/view/mod/editContractOverview', {
 					inventoryQuantity: contractSummary.value[0].value,
-					purchasePolicy: contractSummary.value[1].value,
-					terminalPolicy: contractSummary.value[2].value,
-					businessReward: contractSummary.value[3].value,
-					purchaseUnit: contractSummary.value[4].value,
-					rebateMethod: contractSummary.value[5].value,
-					rebateForm: contractSummary.value[6].value,
-					commitmentPaymentDate: contractSummary.value[7].value,
-					policyExecutionMethod: contractSummary.value[8].value,
-					policyType: contractSummary.value[9].value,
-					activityStartDate: contractSummary.value[10].value,
-					activityEndDate: contractSummary.value[11].value,
-					totalPurchaseAmount: contractSummary.value[12].value,
+					totalPurchaseAmount: contractSummary.value[1].value,
+					purchasePolicy: contractSummary.value[2].value,
+					terminalPolicy: contractSummary.value[3].value,
+					businessReward: contractSummary.value[4].value,
+					purchaseUnit: contractSummary.value[5].value,
+					rebateMethod: contractSummary.value[6].value,
+					rebateForm: contractSummary.value[7].value,
+					commitmentPaymentDate: contractSummary.value[8].value,
+					policyExecutionMethod: contractSummary.value[9].value,
+					policyType: contractSummary.value[10].value,
+					activityStartDate: contractSummary.value[11].value,
+					activityEndDate: contractSummary.value[12].value,
 					eventContent: contractSummary.value[13].value,
 					fm: fm.value
 				})
@@ -434,6 +457,13 @@ const findApprovalStatusByUserId = async(fromNumber) => {
 	}
 }
 
+const checkApprovalStatus = async(fm) => {
+	const res = await requestFast.post('/public/store/view/mod/checkApprovalStatus', {fm: fm})
+	if (res.code === 200) {
+		isApproved.value = res.isApproved
+	}
+}
+
 const detail = async(fromNumber) => {
 	const res = await requestFast.post('/public/store/view/mod/contractOrderDetail', {keyword: fromNumber})
 	if (!res === 200) return
@@ -464,9 +494,11 @@ const detail = async(fromNumber) => {
 	isKeyProject.value = res.isKeyProject
 	eventContent.value = res.eventContent
 	partyARepresentativePhone.value = res.partyARepresentativePhone
+	submitter.value = res.submitter
 	
 	contractSummary.value = []
 	contractSummary.value.push({ label: '库存数量', value: res.inventoryQuantity })
+	contractSummary.value.push({ label: '签约金额', value: res.totalPurchaseAmount })
 	contractSummary.value.push({ label: '购进政策', value: res.purchasePolicy})
 	contractSummary.value.push({ label: '终端政策', value: res.terminalPolicy })
 	contractSummary.value.push({ label: '业务奖励', value: res.businessReward})
@@ -478,7 +510,6 @@ const detail = async(fromNumber) => {
 	contractSummary.value.push({ label: '政策类型', value: res.policyType })
 	contractSummary.value.push({ label: '活动起始时间', value: res.activityStartDate })
 	contractSummary.value.push({ label: '活动结束时间', value: res.activityEndDate })
-	contractSummary.value.push({ label: '签约金额', value: res.totalPurchaseAmount })
 	contractSummary.value.push({ label: '活动内容', value: res.eventContent })
 	contractSummary.value.push({ label: '合同编号', value: fm.value })
 }

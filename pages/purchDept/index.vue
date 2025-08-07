@@ -201,7 +201,7 @@
               <view class="field">
                 <text class="label">补差/盒</text>
                 <uni-easyinput
-                  type="textarea"
+                  type="number"
                   v-model="item.supplementDiff"
                   placeholder="请输入补差/盒"
                   :inputBorder="false"
