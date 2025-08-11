@@ -209,9 +209,15 @@
                   placeholder-style="color: #aaa; font-size: 26rpx"
                 />
               </view>
+			  
+			  <!-- 金额 -->
+			  <view class="field">
+			    <text class="label">金额</text>
+			    <text class="label">{{(item.supplementDiff * item.quantity).toFixed(2)}}</text>
+			  </view>
       
               <!-- 备注 -->
-              <view class="field">
+              <!-- <view class="field">
                 <text class="label">备注</text>
                 <uni-easyinput
 				  type="textarea"
@@ -221,13 +227,13 @@
                   :styles="inputStyle"
                   placeholder-style="color: #aaa; font-size: 26rpx"
                 />
-              </view>
+              </view> -->
             </view>
           </scroll-view>
 
       <view class="product-actions">
         <button class="action-btn" size="mini" @click="changelistadd">新增</button>
-        <button class="action-btn" size="mini" @click="changelistsub" style="margin-left: 15rpx;">删除</button>
+        <button v-if="lists.length > 1" class="action-btn" size="mini" @click="changelistsub" style="margin-left: 15rpx;">删除</button>
       </view>
 
     </view>
@@ -392,7 +398,7 @@
 	const showData2other = ref(null)
 	const showData3other = ref(null)
 	const lists = ref([{productId: '', drugName: '', manufacturer: '', specification: '', unit: '', quantity: null, remarks: '', supplementDiff: null}])
-	const { chooseFile, uploadFile, fileName } = useUploader(`${API_BASE_URL}` + '/public/store/view/mod/uploadFile')
+	const { chooseFile, uploadFile, fileName } = useUploader(`${API_BASE_URL}/public/store/view/mod/uploadFile`, 'file')
 	const chNum = ref(null)
 	
 	//甲方
@@ -805,22 +811,22 @@
 		
 		const pushData = async () => {
 			//先提交文件上去获取到该文件在服务器的路径
-			if (fileName.value) {
-				try {
-					const result = await uploadFile()
-					if (result.code === 200) {
-						console.log(result.data)
-						filePath.value = result.data
-						showToast({title: '文件上传成功！准备开始上传表单数据'})
-					} else {
-						showToast({title: result.msg})
-						return
-					}
-				} catch (err) {
-				  showToast({title: '上传失败！请联系管理员'})
-				  return;
-				}
-			}
+			// if (fileName.value) {
+			// 	try {
+			// 		const result = await uploadFile()
+			// 		if (result.code === 200) {
+			// 			console.log(result.data)
+			// 			filePath.value = result.data
+			// 			showToast({title: '文件上传成功！准备开始上传表单数据'})
+			// 		} else {
+			// 			showToast({title: result.msg})
+			// 			return
+			// 		}
+			// 	} catch (err) {
+			// 	  showToast({title: '上传失败！请联系管理员'})
+			// 	  return;
+			// 	}
+			// }
 			// 生成 data对象
 			const data = {
 				partyAName: partyAName.value,
@@ -865,10 +871,17 @@
 			//提交数据上去
 			const res = await requestFast.post('/public/store/view/modules', data)
 			if (res.code === 200) {
+				//返回合同编号后再提交附件照片上去
+				if (fileName.value) {
+					const res1 = await uploadFile({fm:res.fm})
+					await showModal({content: res1.code === 200 ? '上传成功' : '上传失败', showCancel: false})
+					if (res1.code !== 200) return
+				}
+				
 				uni.showModal({
 					showCancel:false,
 					content:`提交成功!\n您的合同编号是 ${res.fm}\n点击确定复制到您的剪切板`,
-					success:(_res) => {
+					success: async (_res) => {
 						//复制到剪贴板去
 						uni.setClipboardData({
 							data:res.fm,
