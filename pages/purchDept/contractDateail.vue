@@ -12,11 +12,36 @@
       <view class="parties-container">
         <view class="party-info">
           <view class="sub-section-title">甲方信息</view>
-          <view class="info-item"><text class="label">公司：</text>{{partyAName}}</view>
-          <view class="info-item"><text class="label">地址：</text>{{partyAAddress}}</view>
-          <view class="info-item"><text class="label">账户：</text><text class="highlight-number">{{partyAAccount}}</text></view>
-          <view class="info-item"><text class="label">开户行：</text>{{ partyABank }}</view>
-          <view class="info-item"><text class="label">税号：</text>{{ partyATaxId }}</view>
+          <view class="info-item" v-if="!isEdit1"><text class="label">公司：</text>{{partyAName}}</view>
+		  <view class="info-item" v-if="isEdit1">
+			   <text class="label">公司：</text>
+			   <uni-easyinput v-model="partyAName"></uni-easyinput>
+		  </view>
+		  
+          <view class="info-item" v-if="!isEdit1"><text class="label">地址：</text>{{partyAAddress}}</view>
+		  <view class="info-item" v-if="isEdit1">
+			   <text class="label">地址：</text>
+			   <uni-easyinput v-model="partyAAddress"></uni-easyinput>
+		  </view>
+		  
+          <view class="info-item" v-if="!isEdit1"><text class="label">账户：</text><text class="highlight-number">{{partyAAccount}}</text></view>
+		  <view class="info-item" v-if="isEdit1">
+			   <text class="label">账户：</text>
+			   <uni-easyinput v-model="partyAAccount"></uni-easyinput>
+		  </view>
+		  
+          <view class="info-item" v-if="!isEdit1"><text class="label">开户行：</text>{{ partyABank }}</view>
+		  <view class="info-item" v-if="isEdit1">
+			   <text class="label">开户行：</text>
+			   <uni-easyinput v-model="partyABank"></uni-easyinput>
+		  </view>
+		  
+          <view class="info-item" v-if="!isEdit1"><text class="label">税号：</text>{{ partyATaxId }}</view>
+		  <view class="info-item" v-if="isEdit1">
+			   <text class="label">税号：</text>
+			   <uni-easyinput v-model="partyATaxId"></uni-easyinput>
+		  </view>
+		  
           <view class="info-item" v-if="!isEdit1"><text class="label">电话：</text><text class="highlight-number">{{ partyAPhone }}</text></view>
           <view class="info-item" v-if="isEdit1">
 			  <text class="label">电话：</text>
@@ -316,6 +341,11 @@ const editDetail1 = async (index) => {
 	const res = await showModal({content: '确定提交吗？'})
 	if (res) {
 		const _res = await requestFast.post('/public/store/view/mod/editContractBasicInfo', {
+			partyAName: partyAName.value,
+			partyAAddress: partyAAddress.value,
+			partyAAccount: partyAAccount.value,
+			partyABank: partyABank.value,
+			partyATaxId: partyATaxId.value,
 			partyAPhone: partyAPhone.value,
 			partyARepresentative: partyARepresentative.value,
 			partyAContractDate: partyAContractDate.value,

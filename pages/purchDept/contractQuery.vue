@@ -35,7 +35,7 @@
         <view v-for="(contract, index) in contracts" :key="index" class="contract-item" @click="contractInfo(contract.formNumber)">
           <view class="contract-details">
             <text class="contract-name">{{ contract.partAName }}</text>
-            <text class="contract-date">{{ contract.submitTime }}</text>
+            <text class="contract-date" style="margin-top: 10rpx;">{{ contract.submitTime }}</text>
           </view>
           <view class="contract-amount">
             <text class="amount">{{ formatAmount(contract.totalPurchaseAmount) }}</text>
@@ -45,21 +45,24 @@
             <text class="purchaser-name">{{ contract.submitter }}</text>
           </view>
 		  <!-- 审核状态 -->
-		      <view class="contract-footer">
-		        <text v-if="contract.isKeyProject" class="audit-status" :class="getAuditStatusClass('重点')">
-		          重点合同
-		        </text>
-				<text class="audit-status" :class="getAuditStatusClass(contract.auditStatus)" style="margin-left: 25rpx;">
-				  {{ contract.auditStatus }}
-				</text>
-				<text class="audit-status" 
-				:class="getAuditStatusClass('下载')" 
-				style="margin-left: 25rpx;"
-				v-if="isPrint"
-				@click.stop="dw(contract.formNumber)">
-				  下载
-				</text>
-		      </view>
+		  <view style="width: 100%; display: flex; align-items: center;">
+			  <text>{{index + 1}}</text>
+			  <view class="contract-footer">
+					<text v-if="contract.isKeyProject" class="audit-status" :class="getAuditStatusClass('重点')">
+					重点合同
+					</text>
+					<text class="audit-status" :class="getAuditStatusClass(contract.auditStatus)" style="margin-left: 25rpx;">
+					{{ contract.auditStatus }}
+					</text>
+					<text class="audit-status" 
+					:class="getAuditStatusClass('下载')" 
+					style="margin-left: 25rpx;"
+					v-if="isPrint"
+					@click.stop="dw(contract.formNumber)">
+					下载
+					</text>
+			  </view>
+		  </view>
         </view>
 		<view v-if="contracts.length === 0">
 			<text>暂无数据</text>
