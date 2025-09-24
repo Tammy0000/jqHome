@@ -346,7 +346,7 @@
             </view>
             <view class="detail-field">
               <text class="label section-title">签约日期：</text>
-              <uni-datetime-picker type="date" placeholder="签约日期" v-model="partyBContractDate"></uni-datetime-picker>
+              <uni-datetime-picker type="date" placeholder="签约日期" v-model="partyAContractDate"></uni-datetime-picker>
             </view>
             <view class="detail-field">
               <text v-if="range3.length > 1" class="label section-title">采购员：</text>
@@ -579,11 +579,14 @@
 		const res = await requestFast.post('/public/store/view/mod/searchRebateUnitDetail', {rebateId: rebateId})
 		if (res.code === 200) {
 			var result = res.data
+			console.log(result)
 			partyAAddress.value = result.rebateUnitAddress
 			partyAAccount.value = result.account
 			partyATaxId.value = result.taxNumber
 			partyAPhone.value = result.rebateUnitPhone
 			partyABank.value = result.openingBank
+			partyAOwnerPhone.value = result.partyAOwnerPhone
+			partyAOwner.value = result.partyAOwner
 		}
 		if (res.code === 500) {
 			partyAAddress.value = null
@@ -592,6 +595,8 @@
 			partyAPhone.value = null
 			partyARepresentative.value = null
 			partyABank.value = null
+			partyAOwner = null
+			partyAOwnerPhone = null
 		}
 	}
 	
@@ -846,7 +851,7 @@
 				partyARepresentativePhone: partyARepresentativePhone.value,
 				
 				partyBRepresentative: partyBRepresentative.value,
-				partyBContractDate: partyBContractDate.value,
+				partyBContractDate: partyAContractDate.value,
 				
 				totalPurchaseAmount: totalPurchaseAmount.value,
 				purchasePolicy: purchasePolicy.value,

@@ -190,11 +190,11 @@
 			<uni-easyinput type="number" v-model="order.supplementDiff"></uni-easyinput>
 		</view>
 		
-        <view class="order-row" v-if="!isEdit3List[index]"><text class="label">备注：</text>{{ order.remarks}}</view>
-		<view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
+        <view class="order-row"><text class="label">金额：</text>{{ (order.quantity * order.supplementDiff).toFixed(2) }}</view>
+		<!-- <view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
 			<text class="label">备注：</text>
 			<uni-easyinput type="textarea" v-model="order.remarks"></uni-easyinput>
-		</view>
+		</view> -->
       </view>
     </view>
 

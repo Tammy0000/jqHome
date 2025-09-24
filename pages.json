@@ -82,6 +82,13 @@
 			{
 				"navigationBarTitleText" : "附件图片"
 			}
+		},
+		{
+			"path" : "pages/purchDept/AdvancedSearch",
+			"style" : 
+			{
+				"navigationBarTitleText" : "高级搜索"
+			}
 		}
 	],
 	"globalStyle": {
