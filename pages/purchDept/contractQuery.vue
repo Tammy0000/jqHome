@@ -4,72 +4,81 @@
       <view class="header">
         <text class="title">合同查询</text>
         
-        <view class="search-header">
-            <text class="search-title">
-                多条件搜索
-            </text>
-            <button class="toggle-btn" @click="toggleSearch">
-                {{ isSearchCollapsed ? '展开' : '收起' }}
-            </button>
+        <!-- 单一搜索（未登录用户） -->
+        <view v-if="!isToken" class="single-search-area">
+          <view class="search-item">
+            <text class="search-label">合同编号:</text>
+            <uni-easyinput v-model="formNumber" placeholder="请输入合同编号" />
+          </view>
+          <view class="search-buttons">
+            <button class="search-btn search-submit-btn" @click="search">搜索</button>
+          </view>
         </view>
 
-        <view class="multi-search-area" v-show="!isSearchCollapsed">
-          <view class="search-item">
-            <text class="search-label">甲方:</text>
-            <uni-easyinput v-model="partyA" placeholder="请输入甲方名称" />
-          </view>
-          <view class="search-item">
-            <text class="search-label">商品ID:</text>
-            <uni-easyinput type="number" v-model="productId" placeholder="请输入商品ID" />
-          </view>
-          <view class="search-item">
-            <text class="search-label">合同创建时间:</text>
-            <uni-datetime-picker 
-              type="range"
-              v-model="contractDateRange" 
-              placeholder="请选择合同创建日期范围"
-            />
-          </view>
-          <view class="search-item">
-            <text class="search-label">承诺支付时间:</text>
-            <uni-datetime-picker 
-              type="range"
-              v-model="paymentDateRange" 
-              placeholder="请选择承诺支付日期范围"
-            />
-          </view>
-          <view class="search-item">
-            <text class="search-label">采购员:</text>
-            <uni-easyinput v-model="submitter" placeholder="请输入采购员姓名" />
-          </view>
-          <view class="search-item">
-            <text class="search-label">甲方签约代表:</text>
-            <uni-easyinput v-model="partyARepresentative" placeholder="请输入签约代表姓名" />
-          </view>
-          
-          <view class="search-item">
-            <text class="search-label">排序类型:</text>
-            <uni-data-checkbox 
-              v-model="sortType" 
-              :localdata="[{ text: '升序', value: 'asc' }, { text: '降序', value: 'desc' }]"
-            ></uni-data-checkbox>
-          </view>
-          <view class="search-item">
-            <text class="search-label">审批状态:</text>
-            <uni-data-checkbox 
-              v-model="auditStatus" 
-              :localdata="[{ text: '已审核', value: '已审核' }, { text: '未审核', value: '未审核' }]"
-            ></uni-data-checkbox>
+        <!-- 多条件搜索（已登录用户） -->
+        <view v-else class="multi-search-header">
+          <view class="search-header">
+            <text class="search-title">多条件搜索</text>
+            <button class="toggle-btn" @click="toggleSearch">
+              {{ isSearchCollapsed ? '展开' : '收起' }}
+            </button>
           </view>
 
-          <view class="search-item">
-            <text class="search-label">每页数量:</text>
-            <uni-easyinput type="number" v-model="pageSize" placeholder="请输入每页数量" />
-          </view>
-
-          <view class="search-buttons">
-            <button class="search-btn reset-btn" @click="resetSearch">重置</button>
-            <button class="search-btn search-submit-btn" @click="search">搜索</button>
+          <view class="multi-search-area" v-show="!isSearchCollapsed">
+            <view class="search-item">
+              <text class="search-label">甲方:</text>
+              <uni-easyinput v-model="partyA" placeholder="请输入甲方名称" />
+            </view>
+            <view class="search-item">
+              <text class="search-label">商品ID:</text>
+              <uni-easyinput type="number" v-model="productId" placeholder="请输入商品ID" />
+            </view>
+            <view class="search-item">
+              <text class="search-label">合同创建时间:</text>
+              <uni-datetime-picker 
+                type="range"
+                v-model="contractDateRange" 
+                placeholder="请选择合同创建日期范围"
+              />
+            </view>
+            <view class="search-item">
+              <text class="search-label">承诺支付时间:</text>
+              <uni-datetime-picker 
+                type="range"
+                v-model="paymentDateRange" 
+                placeholder="请选择承诺支付日期范围"
+              />
+            </view>
+            <view class="search-item">
+              <text class="search-label">采购员:</text>
+              <uni-easyinput v-model="submitter" placeholder="请输入采购员姓名" />
+            </view>
+            <view class="search-item">
+              <text class="search-label">甲方签约代表:</text>
+              <uni-easyinput v-model="partyARepresentative" placeholder="请输入签约代表姓名" />
+            </view>
+            <view class="search-item">
+              <text class="search-label">排序类型:</text>
+              <uni-data-checkbox 
+                v-model="sortType" 
+                :localdata="[{ text: '升序', value: 'asc' }, { text: '降序', value: 'desc' }]"
+              ></uni-data-checkbox>
+            </view>
+            <view class="search-item">
+              <text class="search-label">审批状态:</text>
+              <uni-data-checkbox 
+                v-model="auditStatus" 
+                :localdata="[{ text: '已审核', value: '已审核' }, { text: '未审核', value: '未审核' }]"
+              ></uni-data-checkbox>
+            </view>
+            <view class="search-item">
+              <text class="search-label">每页数量:</text>
+              <uni-easyinput type="number" v-model="pageSize" placeholder="请输入每页数量" />
+            </view>
+            <view class="search-buttons">
+              <button class="search-btn reset-btn" @click="resetSearch">重置</button>
+              <button class="search-btn search-submit-btn" @click="search">搜索</button>
+            </view>
           </view>
         </view>
       </view>
@@ -81,16 +90,15 @@
 
       <view class="contract-list">
         <view 
-          v-for="(contract, index) in contracts" 
-          :key="index" 
+          v-for="contract in contracts" 
+          :key="contract.formNumber" 
           class="contract-item" 
-          @click="isBatchMode ? toggleSelect(contract.formNumber) : contractInfo(contract.formNumber)">
+          @click="isBatchMode ? toggleContractSelection(contract.formNumber) : contractInfo(contract.formNumber)">
           
           <view v-if="isBatchMode" class="checkbox-container">
-            <uni-data-checkbox 
-              :value="selectedContracts.includes(contract.formNumber)"
-              :localdata="[{ text: '', value: true }]"
-              @change.stop="toggleSelect(contract.formNumber)"
+            <checkbox 
+              :value="contract.formNumber" 
+              :checked="selectedContracts.includes(contract.formNumber)"
             />
           </view>
           
@@ -105,15 +113,27 @@
                 <text class="info-label">采购员:</text>
                 <text class="info-value">{{ contract.submitter }}</text>
                 <text class="info-label">日期:</text>
-                <text class="info-value">{{ contract.submitTime }}</text>
+                <text class="info-value">{{ contract.submitTime.replace("T", " ") }}</text>
               </view>
-              <view class="status-group">
-                <text v-if="contract.isKeyProject" class="status-badge status-pending">
-                  重点合同
-                </text>
-                <text class="status-badge" :class="getAuditStatusClass(contract.auditStatus)">
-                  {{ contract.auditStatus }}
-                </text>
+              <view class="status-and-action-group">
+                <view class="status-group">
+                  <text v-if="contract.isKeyProject" class="status-badge status-pending">
+                    重点合同
+                  </text>
+                  <text class="status-badge" :class="getAuditStatusClass(contract.auditStatus)">
+                    {{ contract.auditStatus }}
+                  </text>
+                  <text class="status-badge" :class="getCurrentApprovalStatusClass(contract.currentApprovalStatus)">
+                    当前审批: {{ contract.currentApprover || '未知' }} {{ contract.currentApprovalStatus || '待处理' }}
+                  </text>
+                </view>
+                <button 
+                  v-if="!isBatchMode"
+                  class="approval-details-btn" 
+                  @click.stop="showApprovalDetails(contract.formNumber)"
+                >
+                  审批详情
+                </button>
               </view>
             </view>
           </view>
@@ -126,7 +146,6 @@
       <view class="pagination-container" v-if="totalPages > 0">
         <view v-if="!pagesToShow.includes(1)" class="pagination-item" @click="goToPage(1)">1</view>
         <text v-if="!pagesToShow.includes(1)">...</text>
-
         <view
           v-for="p in pagesToShow"
           :key="p"
@@ -135,12 +154,11 @@
         >
           {{ p }}
         </view>
-
         <text v-if="!pagesToShow.includes(totalPages)">...</text>
         <view v-if="!pagesToShow.includes(totalPages)" class="pagination-item" @click="goToPage(totalPages)">{{ totalPages }}</view>
       </view>
       
-      <view class="batch-button-container">
+      <view class="batch-button-container" v-if="showBatch">
         <button class="batch-float-btn" @click="toggleBatchMode">{{ isBatchMode ? '取消' : '批量' }}</button>
       </view>
 
@@ -148,7 +166,6 @@
         <button class="action-button audit-button" @click="auditSelectedContracts">一键审核</button>
         <button class="action-button delete-button" @click="deleteSelectedContracts">批量删除</button>
       </view>
-
     </view>
   </view>
 </template>
@@ -168,11 +185,12 @@ const totalElements = ref(0); // 总数量
 const isToken = ref(false);
 const level = ref(0);
 const isPrint = ref(false);
+const showBatch = ref(false);
 const isSearchCollapsed = ref(true);
 
 // 批量操作相关变量
 const isBatchMode = ref(false);
-const selectedContracts = ref([]);
+const selectedContracts = ref([]); // 确保初始化为数组
 
 // 多条件搜索变量
 const partyA = ref(null);
@@ -184,17 +202,21 @@ const partyARepresentative = ref(null);
 const sortType = ref('asc');
 const auditStatus = ref(null);
 
+// 单条件搜索变量
+const formNumber = ref(null);
+
 // ------------------- 生命周期钩子 -------------------
 onShow(async () => {
   await tokenValid();
+  await showBatchs();
   await fetchContracts();
 });
 
 // ------------------- 数据监听 -------------------
 watch(contractDateRange, (newRange) => {
-    if (newRange && newRange.length === 1) {
-        newRange[1] = null;
-    }
+  if (newRange && newRange.length === 1) {
+    newRange[1] = null;
+  }
 }, { deep: true });
 
 watch(paymentDateRange, (newRange) => {
@@ -205,7 +227,6 @@ watch(paymentDateRange, (newRange) => {
 
 // 监听 pageSize 变化，当它改变时自动回到第一页并重新请求数据
 watch(pageSize, (newValue) => {
-  // 当 newValue 为 null、0 或其他非正数时，不触发查询，并重置为默认值
   if (!newValue || newValue <= 0) {
     pageSize.value = 10;
     return;
@@ -214,9 +235,12 @@ watch(pageSize, (newValue) => {
   fetchContracts();
 });
 
+// 监听 selectedContracts 变化，调试用
+watch(selectedContracts, (newValue) => {});
+
 // ------------------- 交互逻辑 -------------------
 const toggleSearch = () => {
-    isSearchCollapsed.value = !isSearchCollapsed.value;
+  isSearchCollapsed.value = !isSearchCollapsed.value;
 };
 
 // 批量操作的按钮点击事件
@@ -228,13 +252,13 @@ const toggleBatchMode = () => {
   }
 };
 
-// 选择/取消选择合同
-const toggleSelect = (formNumber) => {
+// 切换选中状态
+const toggleContractSelection = (formNumber) => {
   const index = selectedContracts.value.indexOf(formNumber);
-  if (index === -1) {
-    selectedContracts.value.push(formNumber);
-  } else {
+  if (index > -1) {
     selectedContracts.value.splice(index, 1);
+  } else {
+    selectedContracts.value.push(formNumber);
   }
 };
 
@@ -249,16 +273,7 @@ const auditSelectedContracts = async () => {
   }
   
   uni.showLoading({ title: '审核中...' });
-  console.log('开始一键审核以下合同:', selectedContracts.value);
-  // 模拟发送批量审核请求
-  // const res = await requestFast.post('/your-api/batch-audit', { formNumbers: selectedContracts.value });
-  // if (res.code === 200) {
-  //   uni.showToast({ title: '批量审核成功！', icon: 'success' });
-  //   toggleBatchMode();
-  //   fetchContracts();
-  // } else {
-  //   uni.showToast({ title: '批量审核失败', icon: 'error' });
-  // }
+  console.log('开始一键审核以下合同:', selectedContracts.value.toString());
   setTimeout(() => {
     uni.hideLoading();
     uni.showToast({ title: '模拟审核成功！', icon: 'success' });
@@ -279,15 +294,6 @@ const deleteSelectedContracts = async () => {
   
   uni.showLoading({ title: '删除中...' });
   console.log('开始批量删除以下合同:', selectedContracts.value);
-  // 模拟发送批量删除请求
-  // const res = await requestFast.post('/your-api/batch-delete', { formNumbers: selectedContracts.value });
-  // if (res.code === 200) {
-  //   uni.showToast({ title: '批量删除成功！', icon: 'success' });
-  //   toggleBatchMode();
-  //   fetchContracts();
-  // } else {
-  //   uni.showToast({ title: '批量删除失败', icon: 'error' });
-  // }
   setTimeout(() => {
     uni.hideLoading();
     uni.showToast({ title: '模拟删除成功！', icon: 'success' });
@@ -296,10 +302,25 @@ const deleteSelectedContracts = async () => {
   }, 1000);
 };
 
+// 显示审批详情
+const showApprovalDetails = (formNumber) => {
+  uni.navigateTo({
+    url: `/pages/purchDept/approvalDetails?formNumber=${formNumber}`,
+  });
+};
+
 // 检查是否显示一键审核和批量删除按钮
 const showActionButtons = computed(() => {
   return isBatchMode.value && selectedContracts.value.length > 0;
 });
+
+// 获取用户是否有一键批量功能
+const showBatchs = async () => {
+  const res = await requestFast.get('/public/store/view/mod/UserBatchs');
+  if (res.code === 200) {
+    showBatch.value = res.data;
+  }
+};
 
 // ------------------- 分页与搜索逻辑 -------------------
 const pagesToShow = computed(() => {
@@ -327,7 +348,7 @@ const goToPage = (page) => {
 
 const fetchContracts = async () => {
   const url = isToken.value ? '/public/store/view/mod/contractOrderList' : '/public/store/view/mod/noTokenContractOrderList';
-  const params = {
+  const params = isToken.value ? {
     page: currentPage.value,
     size: pageSize.value, 
     partyA: partyA.value || undefined,
@@ -340,33 +361,47 @@ const fetchContracts = async () => {
     partyARepresentative: partyARepresentative.value || undefined,
     sortType: sortType.value || undefined,
     auditStatus: auditStatus.value || undefined,
+  } : {
+    page: currentPage.value,
+    size: pageSize.value,
+    formNumber: formNumber.value || undefined,
   };
 
   try {
     const res = await requestFast.post(url, params);
     if (res.code === 200) {
-      contracts.value = res.contracts || [];
+      contracts.value = res.contracts.map(item => ({
+        ...item,
+        formNumber: String(item.formNumber || `temp_${Date.now()}_${Math.random()}`), // 确保 formNumber 是唯一字符串
+      })) || [];
       totalPages.value = res.totalPages || 0;
       totalElements.value = res.totalElements || 0; 
       if (totalPages.value === 0 && currentPage.value !== 1) {
         currentPage.value = 1;
       }
+      // 清理 selectedContracts 中不存在的 formNumber
+      selectedContracts.value = selectedContracts.value.filter(formNumber =>
+        contracts.value.some(contract => contract.formNumber === formNumber)
+      );
     } else {
       contracts.value = [];
       totalPages.value = 0;
       totalElements.value = 0;
+      selectedContracts.value = [];
     }
   } catch (error) {
     console.error('Failed to fetch contracts:', error);
     contracts.value = [];
     totalPages.value = 0;
     totalElements.value = 0;
+    selectedContracts.value = [];
   }
 };
 
 const search = async () => {
   currentPage.value = 1;
-  const params = {
+  const url = isToken.value ? '/public/store/view/mod/contractOrderList/bylogin' : '/public/store/view/mod/noTokenContractOrderList';
+  const params = isToken.value ? {
     page: currentPage.value,
     size: pageSize.value, 
     partyA: partyA.value || undefined,
@@ -379,22 +414,53 @@ const search = async () => {
     partyARepresentative: partyARepresentative.value || undefined,
     sortType: sortType.value || undefined,
     auditStatus: auditStatus.value || undefined,
+  } : {
+    page: currentPage.value,
+    size: pageSize.value,
+    formNumber: formNumber.value || undefined,
   };
-  const res = await requestFast.post('/public/store/view/mod/contractOrderList/bylogin', params)
+  try {
+    const res = await requestFast.post(url, params);
+    if (res.code === 200) {
+      contracts.value = res.contracts.map(item => ({
+        ...item,
+        formNumber: String(item.formNumber || `temp_${Date.now()}_${Math.random()}`), // 确保 formNumber 是唯一字符串
+      })) || [];
+      totalPages.value = res.totalPages || 0;
+      totalElements.value = res.totalElements || 0;
+      selectedContracts.value = selectedContracts.value.filter(formNumber =>
+        contracts.value.some(contract => contract.formNumber === formNumber)
+      );
+    } else {
+      contracts.value = [];
+      totalPages.value = 0;
+      totalElements.value = 0;
+      selectedContracts.value = [];
+    }
+  } catch (error) {
+    console.error('Failed to search contracts:', error);
+    contracts.value = [];
+    totalPages.value = 0;
+    totalElements.value = 0;
+    selectedContracts.value = [];
+  }
 };
 
 const resetSearch = () => {
-  partyA.value = null;
-  productId.value = null;
-  contractDateRange.value = null;
-  paymentDateRange.value = null;
-  submitter.value = null;
-  partyARepresentative.value = null;
-  sortType.value = 'asc';
-  auditStatus.value = null;
-  
+  if (isToken.value) {
+    partyA.value = null;
+    productId.value = null;
+    contractDateRange.value = null;
+    paymentDateRange.value = null;
+    submitter.value = null;
+    partyARepresentative.value = null;
+    sortType.value = 'asc';
+    auditStatus.value = null;
+    pageSize.value = 10;
+  } else {
+    formNumber.value = null;
+  }
   currentPage.value = 1;
-  pageSize.value = 10; 
   fetchContracts();
 };
 
@@ -433,6 +499,16 @@ function getAuditStatusClass(status) {
     default: return '';
   }
 }
+
+function getCurrentApprovalStatusClass(status) {
+  switch (status) {
+    case '已审核': return 'status-approved';
+    case '待审核': return 'status-pending';
+    case '未审核': return 'status-rejected';
+    case '已拒绝': return 'status-rejected';
+    default: return 'status-unsubmitted';
+  }
+}
 </script>
 
 <style scoped>
@@ -458,13 +534,15 @@ function getAuditStatusClass(status) {
   color: #2c3e50;
   font-weight: bold;
 }
+.multi-search-header {
+  border-bottom: 1px solid #eee;
+  margin-bottom: 10px;
+}
 .search-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 10px;
 }
 .search-title {
   font-size: 16px;
@@ -483,7 +561,7 @@ function getAuditStatusClass(status) {
   cursor: pointer;
   margin-left: auto;
 }
-.multi-search-area {
+.single-search-area, .multi-search-area {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -501,7 +579,7 @@ function getAuditStatusClass(status) {
 }
 .search-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-top: 10px;
 }
 .search-btn {
@@ -545,6 +623,7 @@ function getAuditStatusClass(status) {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: flex-start;
+  min-height: 100px;
 }
 .item-content-wrapper {
   flex: 1; 
@@ -587,10 +666,18 @@ function getAuditStatusClass(status) {
   font-weight: bold;
   margin-right: 10px;
 }
+.status-and-action-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
 .status-group {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+  max-width: 200px;
 }
 .status-badge {
   font-size: 12px;
@@ -604,6 +691,25 @@ function getAuditStatusClass(status) {
 .status-pending { background-color: #e3f2fd; color: #2980b9; }
 .status-rejected { background-color: #ffebee; color: #e74c3c; }
 .status-unsubmitted { background-color: #f5f5f5; color: #7f8c8d; }
+
+/* 审批详情按钮样式 */
+.approval-details-btn {
+  background-color: #4dabf7;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 60px;
+}
+.approval-details-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
 
 /* 分页样式 */
 .pagination-container {
@@ -660,7 +766,6 @@ function getAuditStatusClass(status) {
   display: flex;
   gap: 15px;
 }
-/* 新增：用于一键审核和批量删除的通用样式 */
 .action-button {
   width: 90px;
   height: 40px;
@@ -685,10 +790,13 @@ function getAuditStatusClass(status) {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  padding: 5px;
 }
-.uni-data-checkbox .uni-checkbox-input {
-  width: 20px !important;
-  height: 20px !important;
+.checkbox-container checkbox .wx-checkbox-input {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
 }
 </style>

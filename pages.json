@@ -89,6 +89,13 @@
 			{
 				"navigationBarTitleText" : "高级搜索"
 			}
+		},
+		{
+			"path" : "pages/purchDept/approvalDetails",
+			"style" : 
+			{
+				"navigationBarTitleText" : "审批详情"
+			}
 		}
 	],
 	"globalStyle": {
