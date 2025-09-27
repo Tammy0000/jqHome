@@ -503,9 +503,9 @@ function getAuditStatusClass(status) {
 function getCurrentApprovalStatusClass(status) {
   switch (status) {
     case '已审核': return 'status-approved';
-    case '待审核': return 'status-pending';
+    case '首次录入': return 'status-pending';
     case '未审核': return 'status-rejected';
-    case '已拒绝': return 'status-rejected';
+    case '合同驳回': return 'status-rejected';
     default: return 'status-unsubmitted';
   }
 }

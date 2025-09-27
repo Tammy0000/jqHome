@@ -140,7 +140,6 @@
     <!-- 订单数据 -->
     <view class="section">
 	  <view class="section-title">订单明细</view>
-      <!-- <view class="order-card"> -->
       <view v-for="(order, index) in orders" :key="index" class="order-card">
 		<view style="display: flex; justify-content: flex-end;">
 			<view style="display: flex; gap: 10rpx; margin-bottom: 15rpx;">
@@ -191,10 +190,6 @@
 		</view>
 		
         <view class="order-row"><text class="label">金额：</text>{{ (order.quantity * order.supplementDiff).toFixed(2) }}</view>
-		<!-- <view class="order-row" v-if="isEdit3List[index]" style="width: 100%; display: flex; align-items: center;">
-			<text class="label">备注：</text>
-			<uni-easyinput type="textarea" v-model="order.remarks"></uni-easyinput>
-		</view> -->
       </view>
     </view>
 
@@ -219,12 +214,29 @@
         <view class="close-btn" @click="showAttachment = false">×</view>
       </view>
     </view>
+
+    <!-- 审核/驳回/作废备忘输入模态框 -->
+    <view class="memo-modal" v-if="showMemoModal">
+      <view class="modal-content">
+        <text class="modal-title">请输入{{ memoType }}备忘（选填）</text>
+        <uni-easyinput 
+          type="textarea" 
+          v-model="memoContent" 
+          :placeholder="`请输入${memoType}备忘（选填）`" 
+          :styles="{ minHeight: '100rpx', border: '1rpx solid #e0e0e0', borderRadius: '10rpx' }"
+        />
+        <view class="modal-buttons">
+          <button class="modal-button confirm" @click="submitMemo">确定</button>
+          <button class="modal-button cancel" @click="cancelMemo">取消</button>
+        </view>
+      </view>
+    </view>
   </scroll-view>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import {onLoad} from '@dcloudio/uni-app'
+import { onLoad } from '@dcloudio/uni-app'
 import requestFast from '@/utils/requestFast.js'
 import { API_BASE_URL_STATIC } from '@/utils/config'
 import { API_BASE_URL } from '../../utils/config'
@@ -269,6 +281,11 @@ const isEdit3List = ref([])
 const isSelectTime = ref(false)
 //是否审批，用于审批以后不可变再编辑
 const isApproved = ref(false)
+
+const showMemoModal = ref(false)
+const memoContent = ref('')
+const memoType = ref('')
+const memoStatus = ref('')
 
 onLoad(async(opt) => {
 	fm.value = opt.fromNumber
@@ -411,7 +428,7 @@ const editDetail2 = async (index) => {
 
 const editDetail3 = async (index1, index2) => {
 	if (index1 !== 2) {
-		isEdit3List.value[index2] = !isEdit3List.value[index2]
+		isEdit3List.value[index2] = !isEdit3List[index2]
 		if (index1 === 3) {
 			await startup()
 			return
@@ -427,7 +444,7 @@ const editDetail3 = async (index1, index2) => {
 					return
 				}
 				await showToast({title: '删除成功!'})
-				isEdit3List.value[index2] = !isEdit3List.value[index2]
+				isEdit3List.value[index2] = !isEdit3List[index2]
 				await startup()
 			}
 		}
@@ -459,7 +476,7 @@ const editDetail3 = async (index1, index2) => {
 		showToast({title:'提交失败，请反馈给管理员'})
 		return
 	}
-	isEdit3List.value[index2] = !isEdit3List.value[index2]
+	isEdit3List.value[index2] = !isEdit3List[index2]
 	await startup()
 }
 
@@ -484,6 +501,8 @@ const findApprovalStatusByUserId = async(fromNumber) => {
 		isShowStatus.value = _res.isShowStatus
 		approvalType.value = _res.approvalType
 		approvalStatus.value = _res.approvalStatus
+	} else {
+		console.error('Failed to fetch approval status:', res)
 	}
 }
 
@@ -491,12 +510,17 @@ const checkApprovalStatus = async(fm) => {
 	const res = await requestFast.post('/public/store/view/mod/checkApprovalStatus', {fm: fm})
 	if (res.code === 200) {
 		isApproved.value = res.isApproved
+	} else {
+		console.error('Failed to check approval status:', res)
 	}
 }
 
 const detail = async(fromNumber) => {
 	const res = await requestFast.post('/public/store/view/mod/contractOrderDetail', {keyword: fromNumber})
-	if (!res === 200) return
+	if (res.code !== 200) {
+		console.error('Failed to fetch contract details:', res)
+		return
+	}
 	
 	orders.value = res.submissionDateDetailList
 	picURL.value = API_BASE_URL_STATIC + '/' + res.filePath
@@ -566,23 +590,32 @@ const canCancelAudit = computed(() => auditStatus.value === '已审核');
 const canVoid = computed(() => auditStatus.value !== '已作废' && auditStatus.value !== '未审核');
 
 const handleAudit = async() => {
+  if (!isShowApproval.value) {
+    console.warn('Audit button should not be visible when isShowApproval is false');
+    uni.showToast({
+      title: '无权限执行审核操作',
+      icon: 'none'
+    });
+    return;
+  }
+
   const itemList = [];
-  for (var i = 0; i < approvalStatus.value.length; i++) {
-	var title = approvalStatus.value[i]
-	if (title === '未审核') {
-		itemList.push('驳回')
-		continue
-	}
-	itemList.push(title.substring(1,3))
+  for (const title of approvalStatus.value) {
+    if (title === '未审核') {
+      itemList.push('驳回');
+    } else {
+      itemList.push(title.substring(1, 3));
+    }
   }
   
   if (isShowType.value) {
-	  itemList.push(approvalType.value === '重点合同' ? '标记为重点合同' : '标记为普通合同')
+    itemList.push(approvalType.value === '重点合同' ? '标记为重点合同' : '标记为普通合同');
   }
 
-  itemList.push('删除合同')
+  itemList.push('删除合同');
 
   if (itemList.length === 0) {
+    console.warn('No valid audit actions available:', approvalStatus.value);
     uni.showToast({
       title: '当前状态不可操作',
       icon: 'none'
@@ -590,67 +623,151 @@ const handleAudit = async() => {
     return;
   }
 
+  // console.log('Action sheet options:', itemList);
   uni.showActionSheet({
     itemList,
     success: (res) => {
       const action = itemList[res.tapIndex];
-      if (action === '审核') confirmAudit('已审核');
-      else if (action === '驳回') confirmAudit('未审核');
-      else if (action === '作废') confirmAudit('已作废');
-      else if (action === '标记为普通合同') confirmAudit('普通合同');
-      else if (action === '标记为重点合同') confirmAudit('重点合同');
-      else if (action === '删除合同') removeFm();
+      console.log('Selected action:', action);
+      if (action === '审核') {
+        confirmAudit('已审核');
+      } else if (action === '驳回') {
+        confirmAudit('未审核');
+      } else if (action === '作废') {
+        confirmAudit('已作废');
+      } else if (action === '标记为普通合同') {
+        confirmAudit('普通合同');
+      } else if (action === '标记为重点合同') {
+        confirmAudit('重点合同');
+      } else if (action === '删除合同') {
+        removeFm();
+      }
     },
-    fail: () => {}
+    // fail: (err) => {
+    //   console.error('Action sheet failed:', err);
+    //   uni.showToast({
+    //     title: '操作失败，请重试',
+    //     icon: 'none'
+    //   });
+    // }
   });
 };
 
 const removeFm = () => {
-	uni.showModal({
-		title:'确认删除',
-		content:'您确定要将此政策删除，且不可以恢复吗？',
-		success: async(res) => {
-			if (res.confirm) {
-				const _res = await requestFast.post('/public/store/remove/mod/removeSubmissionDetail', {fm: fm.value})
-				if (_res.code === 500) {
-					showToast({title: '删除订单失败!请联系管理员处理', icon:'fail'})
-					return
-				}
-				showToast({title: '删除成功!', icon:'successful'})
-				uni.redirectTo({
-					url:'/pages/purchDept/contractQuery'
-				})
-			}
-		}
-	})
-}
-
-const confirmAudit = (newStatus) => {
-	var contents = ''
-	if (newStatus === '普通合同') {
-		contents = '转普通合同'
-	} else if (newStatus === '重点合同') {
-		contents = '转重点合同'
-	} else {
-		contents = newStatus
-	}
   uni.showModal({
-    title: `确认${newStatus}`,
-    content: `您确定要将政策标记为【${newStatus === '未审核' ? '驳回' : newStatus}】吗？`,
-    success: async (res) => {
+    title: '确认删除',
+    content: '您确定要将此政策删除，且不可以恢复吗？',
+    success: async(res) => {
       if (res.confirm) {
-        auditStatus.value = newStatus;
-		const res = await requestFast.post('/public/store/view/mod/editAuditStatus', {fm: fm.value, auditStatus: newStatus})
-		if (res.code === 200) {
-			await detail(fm.value)
-			await findApprovalStatusByUserId(fm.value)
-		}
-        uni.showToast({
-          title: res.code === 200 ? `${contents === '未审核' ? '驳回' : contents}成功` : `${contents === '未审核' ? '驳回' : contents}失败`,
-          icon: res.code === 200 ? 'success' : 'fail'
+        const _res = await requestFast.post('/public/store/remove/mod/removeSubmissionDetail', {fm: fm.value});
+        if (_res.code === 500) {
+          showToast({title: '删除订单失败!请联系管理员处理', icon: 'fail'});
+          return;
+        }
+        showToast({title: '删除成功!', icon: 'successful'});
+        uni.redirectTo({
+          url: '/pages/purchDept/contractQuery'
         });
       }
+    },
+    fail: (err) => {
+      console.error('Delete modal failed:', err);
+      uni.showToast({
+        title: '删除操作失败，请重试',
+        icon: 'none'
+      });
     }
+  });
+};
+
+const confirmAudit = (newStatus) => {
+  const contents = newStatus === '普通合同' ? '转普通合同' : newStatus === '重点合同' ? '转重点合同' : newStatus;
+  console.log('Confirming audit status:', newStatus);
+  uni.showModal({
+    title: `确认${contents}`,
+    content: `您确定要将政策标记为【${newStatus === '未审核' ? '驳回' : contents}】吗？`,
+    success: async (res) => {
+      if (!res.confirm) {
+        console.log('Audit confirmation cancelled');
+        return;
+      }
+      if (['已审核', '未审核', '已作废'].includes(newStatus)) {
+        console.log(`Opening ${newStatus} memo modal`);
+        showMemoModal.value = true;
+        memoType.value = newStatus === '未审核' ? '驳回' : newStatus;
+        memoStatus.value = newStatus;
+      } else {
+        auditStatus.value = newStatus;
+        const res = await requestFast.post('/public/store/view/mod/editAuditStatus', {
+          fm: fm.value,
+          auditStatus: newStatus
+        });
+        console.log('Audit API response:', res);
+        if (res.code === 200) {
+          await detail(fm.value);
+          await findApprovalStatusByUserId(fm.value);
+          uni.showToast({
+            title: `${contents}成功`,
+            icon: 'success'
+          });
+        } else {
+          uni.showToast({
+            title: `${contents}失败，请联系管理员`,
+            icon: 'fail'
+          });
+        }
+      }
+    },
+    fail: (err) => {
+      console.error('Audit confirmation modal failed:', err);
+      uni.showToast({
+        title: '操作失败，请重试',
+        icon: 'none'
+      });
+    }
+  });
+};
+
+const submitMemo = async () => {
+  console.log(`Submitting ${memoType.value} memo:`, memoContent.value);
+  auditStatus.value = memoStatus.value;
+  const payload = {
+    fm: fm.value,
+    auditStatus: memoStatus.value
+  };
+  if (memoContent.value.trim()) {
+    payload.memo = memoContent.value.trim();
+  }
+  const res = await requestFast.post('/public/store/view/mod/editAuditStatus', payload);
+  console.log('Audit API response:', res);
+  if (res.code === 200) {
+    await detail(fm.value);
+    await findApprovalStatusByUserId(fm.value);
+    uni.showToast({
+      title: `${memoType.value}成功`,
+      icon: 'success'
+    });
+  } else {
+    uni.showToast({
+      title: `${memoType.value}失败，请联系管理员`,
+      icon: 'fail'
+    });
+  }
+  showMemoModal.value = false;
+  memoContent.value = '';
+  memoType.value = '';
+  memoStatus.value = '';
+};
+
+const cancelMemo = () => {
+  console.log(`${memoType.value} memo modal cancelled`);
+  showMemoModal.value = false;
+  memoContent.value = '';
+  memoType.value = '';
+  memoStatus.value = '';
+  uni.showToast({
+    title: `已取消${memoType.value}操作`,
+    icon: 'none'
   });
 };
 </script>
@@ -664,29 +781,29 @@ const confirmAudit = (newStatus) => {
   transform: translateX(-50%);
   display: flex;
   justify-content: center;
-  gap: 24rpx; /* 按钮之间间距 */
+  gap: 24rpx;
   z-index: 99;
 }
 
 /* 审核按钮 */
 .audit-btn {
-  background-color: #34c38f; /* 绿色，偏柔和 */
+  background-color: #34c38f;
   color: #ffffff;
   padding: 16rpx 32rpx;
-  border-radius: 24rpx; /* 圆角但不过度 */
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28rpx;
   box-shadow: 0 2rpx 8rpx rgba(52, 195, 143, 0.3);
-  min-width: 180rpx; /* 最小宽度，保持按钮均匀 */
+  min-width: 180rpx;
 }
 
 .container {
   padding: 32rpx;
   background-color: #f5f7fa;
   box-sizing: border-box;
-  padding-bottom: 120rpx; /* 为底部按钮留出空间 */
+  padding-bottom: 120rpx;
 }
 
 .section {
@@ -796,7 +913,7 @@ const confirmAudit = (newStatus) => {
 
 /* 查看附件按钮 */
 .attachment-btn {
-  background-color: #4e8ef7; /* 蓝色，柔和 */
+  background-color: #4e8ef7;
   color: #ffffff;
   padding: 16rpx 32rpx;
   border-radius: 24rpx;
@@ -832,22 +949,20 @@ const confirmAudit = (newStatus) => {
   position: relative;
   width: 90%;
   max-width: 700rpx;
-  max-height: 80vh; /* 新增：限制容器最大高度 */
+  max-height: 80vh;
   background-color: #fff;
   border-radius: 20rpx;
   padding: 20rpx;
   box-sizing: border-box;
-  display: flex; /* 新增 */
-  flex-direction: column; /* 新增 */
-  /* 新增：防止内容溢出 */
-  /* overflow: hidden; */
+  display: flex;
+  flex-direction: column;
 }
 
 .attachment-image {
   width: 100%;
-  max-height: calc(80vh - 80rpx); /* 计算值：容器高度减去padding和关闭按钮空间 */
+  max-height: calc(80vh - 80rpx);
   border-radius: 10rpx;
-  object-fit: contain; /* 保持图片比例 */
+  object-fit: contain;
 }
 
 .close-btn {
@@ -864,5 +979,60 @@ const confirmAudit = (newStatus) => {
   align-items: center;
   font-size: 40rpx;
   font-weight: bold;
+}
+
+/* 备忘模态框样式 */
+.memo-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  width: 80%;
+  max-width: 600rpx;
+  box-sizing: border-box;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20rpx;
+}
+
+.modal-button {
+  width: 48%;
+  padding: 16rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  text-align: center;
+}
+
+.modal-button.confirm {
+  background-color: #34c38f;
+  color: #fff;
+}
+
+.modal-button.cancel {
+  background-color: #f0f0f0;
+  color: #333;
 }
 </style>
