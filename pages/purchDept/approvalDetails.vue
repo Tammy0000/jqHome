@@ -121,14 +121,14 @@ const fetchApprovalDetails = async (formNumber) => {
   uni.showLoading({ title: '加载中...' });
   try {
     // 占位符 API，需替换为实际接口
-    const res = await requestFast.get(`/public/store/view/mod/approvalDetails/${formNumber}`);
+    const res = await requestFast.get('/public/store/view/mod/approvalDetails', {fm: formNumber});
     if (res.code === 200) {
       contract.value = {
-        partAName: res.data.partAName || '',
-        submitter: res.data.submitter || '',
-        submitTime: res.data.submitTime || '',
+        partAName: res.partAName || '',
+        submitter: res.submitter || '',
+        submitTime: res.submitTime || '',
       };
-      approvalHistory.value = res.data.approvalHistory || [];
+      approvalHistory.value = res.approvalHistory || [];
     } else {
       uni.showToast({
         title: '加载失败，使用示例数据',
@@ -170,7 +170,7 @@ const getStatusClass = (status) => {
   switch (status) {
     case '已审核': return 'status-approved';
     case '待审核': return 'status-pending';
-    case '未审核': return 'status-rejected';
+    case '已驳回': return 'status-rejected';
     case '已拒绝': return 'status-rejected';
     default: return 'status-unsubmitted';
   }

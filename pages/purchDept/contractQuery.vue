@@ -492,9 +492,9 @@ const formatAmount = (amount) => {
 
 function getAuditStatusClass(status) {
   switch (status) {
-    case '已审核': return 'status-approved';
+    case '已通过': return 'status-approved';
     case '重点': return 'status-pending';
-    case '未审核': return 'status-rejected';
+    case '未通过': return 'status-rejected';
     case '已作废': return 'status-unsubmitted';
     default: return '';
   }
